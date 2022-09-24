@@ -3,12 +3,33 @@
 {% block content %}
 
 <style type="text/css">
-
+    .username-field {
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    .password-field {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
 </style>
 
-<div class="container-fluid">
+<div class="container-fluid mt-5">
     <div class="d-flex justify-content-center">
-        <p1>LOGIN</p1>
+        <form class="form-signin" method="post">{% csrf_token %}
+            <input type="text" name="username" id="inputUsername" class="form-control username-field mb-2" placeholder="Имя пользователя" required autofocus>
+            <input type="password" name="password" id="inputPassword" class="form-control password-field mb-2" placeholder="Пароль" required>
+
+            {% for field in login_form %}
+            {% for error in field.errors %}
+            <p style="color: red">{{ error }}</p>
+            {% endfor %}
+            {% endfor %}
+			{% if login_form.non_field_errors %}
+			<p style="color: red">{{login_form.non_field_errors}}</p>
+			{% endif %}
+
+            <div class="d-flex justify-content-center mt-2"><button class="btn btn-lg btn-primary btn-block py-1" type="submit">Войти</button></div>
+        </form>
     </div>
 </div>
 

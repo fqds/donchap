@@ -19,8 +19,15 @@ from account.views import (
     entrance_view,
     login_view,
     register_view,
+    account_view,
+    logout_view,
 )
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', entrance_view, name="entrance")
+    path('entrance', entrance_view, name="entrance"),
+    path('login', login_view, name="login"),
+    path('register', register_view, name="register"),
+    path('', account_view, name="home"),
+    path('logout', logout_view, name="logout"),
 ]

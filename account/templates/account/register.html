@@ -3,12 +3,42 @@
 {% block content %}
 
 <style type="text/css">
-
+    .username-field {
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    .password1-field {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .password2-field {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
 </style>
 
-<div class="container-fluid">
+<div class="container-fluid mt-5">
     <div class="d-flex justify-content-center">
-        <p1>REGISTER</p1>
+        <form class="form-signin" method="post">{% csrf_token %}
+            
+            <input type="text" name="username" id="inputUsername" class="form-control username-field mb-2" placeholder="Username" required>
+
+            <input type="password" name="password1" id="inputPassword1" class="form-control password1-field mb-2" placeholder="Password" required>
+
+            <input type="password" name="password2" id="inputPassword2" class="form-control password2-field mb-2" placeholder="Confirm password" required>
+
+            {% for field in registration_form %}
+			{% for error in field.errors %}
+			<p style="color: red">{{ error }}</p>
+			{% endfor %}
+			{% endfor %}
+			{% if registration_form.non_field_errors %}
+			<p style="color: red">{{registration_form.non_field_errors}}</p>
+			{% endif %}
+            <div class="d-flex justify-content-center mt-2"><button class="btn btn-lg btn-primary btn-block py-1" type="submit">Зарегестрироваться</button></div>
+        </form>
     </div>
 </div>
 

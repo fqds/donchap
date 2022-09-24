@@ -6,9 +6,12 @@
 
 </style>
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-center mt-5">
-        <p1>ENTRANCE</p1>
+<div class="container-fluid mt-5">
+    <div class="d-flex justify-content-center">
+        <div class="flex-column">
+            <a class="btn btn-outline-primary text-dark" href="{% url 'login' %}" style="display: block;">Вход</a>
+            <a class="btn btn-outline-primary px-3 text-dark mt-1" href="{% url 'register' %}">Регистрация</a>
+        </div>
     </div>
 </div>
 
