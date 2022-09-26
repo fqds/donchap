@@ -11,9 +11,8 @@ def create_lobby_view(request, *args, **kwargs):
 
     if request.POST:
         form = CreateLobbyForm(request.POST)
-        print(form)
-        lobby_name = form.cleaned_data.get('lobby_name')
-        raw_content = form.cleaned_data.get('content')
+        lobby_name = request.POST['lobby_name']
+        raw_content = request.POST['content']
         lobby = Lobby(lobby_name=lobby_name)
         lobby.save()
         content = []
