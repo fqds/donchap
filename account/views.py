@@ -17,10 +17,8 @@ def login_view(request, *args, **kwargs):
 
     context = {}
 
-    print(request.POST)
     if request.POST:
         form = AccountAuthenticationForm(request.POST)
-        print(form.is_valid())
         if form.is_valid():
             username = request.POST['username']
             password = request.POST['password']
@@ -65,9 +63,6 @@ def account_view(request, *args, **kwargs):
         return redirect('entrance')
 
     context = {}
-
-    if request.POST:
-        form = AccountAuthenticationForm(request.POST)
     return render(request, "account/account.html", context)  
 
 def logout_view(request):

@@ -36,6 +36,8 @@ AUTHENTICATION_BACKENDS = (
 # Application definition
 
 INSTALLED_APPS = [
+    'player',
+    'master',
     'account',
 
     'django.contrib.admin',

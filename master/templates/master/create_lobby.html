@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style type="text/css">
+
+</style>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-center mt-5">
+        <form class="form-signin" method="post" autocomplete="off">{% csrf_token %}
+            {% for f in form %}
+            <div class="d-flex justify-content-center mb-2">
+            {{ f }}
+            </div>
+            {% endfor %}
+            <div class="d-flex justify-content-center mt-2"><button class="btn btn-lg btn-primary btn-block py-1" type="submit">Закончить настройку</button></div>
+        </form>
+    </div>
+</div>
+
+
+{% endblock content %}

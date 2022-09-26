@@ -6,9 +6,12 @@
 
 </style>
 
-<div class="container-fluid">
+<div class="container-fluid mt-5">
     <div class="d-flex justify-content-center">
-        <p1>ACCOUNT</p1>
+        <div class="flex-column">
+            <a class="btn btn-outline-primary text-dark" href="{% url 'create_lobby' %}" style="display: block;">Создать лобби</a>
+            {% comment %} <a class="btn btn-outline-primary px-3 text-dark mt-1" href="{% url 'home' %}">Войти в лобби</a> {% endcomment %}
+        </div>
     </div>
 </div>
 

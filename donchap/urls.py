@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+
 from account.views import (
     entrance_view,
     login_view,
@@ -22,7 +23,7 @@ from account.views import (
     account_view,
     logout_view,
 )
-
+from master.views import create_lobby_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('entrance', entrance_view, name="entrance"),
@@ -30,4 +31,6 @@ urlpatterns = [
     path('register', register_view, name="register"),
     path('', account_view, name="home"),
     path('logout', logout_view, name="logout"),
+
+    path('create_lobby', create_lobby_view, name="create_lobby"),
 ]
