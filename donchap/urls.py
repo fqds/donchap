@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import include
 
 from account.views import (
     entrance_view,
@@ -26,11 +27,12 @@ from account.views import (
 from master.views import create_lobby_view
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('entrance', entrance_view, name="entrance"),
-    path('login', login_view, name="login"),
-    path('register', register_view, name="register"),
+    path('entrance/', entrance_view, name="entrance"),
+    path('login/', login_view, name="login"),
+    path('register/', register_view, name="register"),
     path('', account_view, name="home"),
-    path('logout', logout_view, name="logout"),
+    path('logout/', logout_view, name="logout"),
 
-    path('create_lobby', create_lobby_view, name="create_lobby"),
+    path('create_lobby/', create_lobby_view, name="create_lobby"),
+    path('lobby/', include('master.urls', namespace="lobby")),
 ]

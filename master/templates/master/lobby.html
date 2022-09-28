@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style type="text/css">
+    li {
+        list-style-type: none;
+    }
+    ul {
+        padding-left: 0;
+    }
+    .container-main {
+    }
+</style>
+
+
+{% if is_master %}
+<div class="container-main mt-1 ms-1">
+    <ul>
+        {% for parameter in content %}
+        <li>
+            {{ parameter.1 }}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% else %}
+<div class="container-main mt-1 ms-1">
+    <ul>
+        {% for parameter in content %}
+        <li>
+            <p>{{ parameter.1 }}</p>
+            <p><input type="text" name="{{parameter.1}}" id="id_parameter_{{parameter.pk}}"></input></p>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+
+{% endblock content %}

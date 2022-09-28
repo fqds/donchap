@@ -1,3 +1,4 @@
+from statistics import mode
 from django.db import models
 
 class LobbyManager(models.Model):
@@ -7,6 +8,7 @@ class LobbyManager(models.Model):
 
 class Lobby(models.Model):
     lobby_name = models.CharField(max_length=16)
+    game_master = models.CharField(max_length=5)
 
     
 class LobbyParameter(models.Model):

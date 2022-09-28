@@ -1,1 +1,3 @@
 __pycache__
+account/migrations/0001_initial.py
+master/migrations/0001_initial.py
