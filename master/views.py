@@ -1,7 +1,12 @@
 from django.shortcuts import render, redirect
 
 from master.forms import CreateLobbyForm
-from master.models import Lobby, LobbyParameter
+from master.models import (
+    Lobby,
+    LobbyParameter,
+    LobbyPlayer,
+    PlayerParameter,
+)
 from account.models import Account
 
 def create_lobby_view(request, *args, **kwargs):
@@ -32,7 +37,7 @@ def create_lobby_view(request, *args, **kwargs):
             content.append(temp)
             for i in content:
                 temp = ' '.join(i)
-                lobby_parameter = LobbyParameter(parameter_field=temp, lobby_identifier=lobby)
+                lobby_parameter = LobbyParameter(lobby_identifier=lobby, parameter_field=temp)
                 lobby_parameter.save()
             return redirect('lobby:view', lobby_name=lobby_name)
     else:
@@ -53,10 +58,22 @@ def lobby_view(request, *args, **kwargs):
     for i in lobby.lobby_parameters.all():
         content.append(i.parameter_field.split())
 
-    if user.pk == int(lobby.game_master):
+    if user.pk == lobby.game_master:
         context['is_master'] = True
     else:
         context['is_master'] = False
+        flag = False
+        for p in lobby.players.all():
+            if p.player_id == user.pk:
+                flag = True
+        if not flag:
+            player = LobbyPlayer(lobby_identifier=lobby, player_id=user.pk)
+            player.save()
+            for i in lobby.lobby_parameters.all():
+                player_parameter = PlayerParameter(player_identifier=player)
+                player_parameter.save()
+
+
     context['content']=content
     print(context)
     return render(request, "master/lobby.html", context)
