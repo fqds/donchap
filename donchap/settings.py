@@ -36,16 +36,18 @@ AUTHENTICATION_BACKENDS = (
 # Application definition
 
 INSTALLED_APPS = [
-    'player',
-    'master',
-    'account',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+
+    'player',
+    'master',
+    'account',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -78,7 +80,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'donchap.wsgi.application'
 
-ASGI_APPLICATION = 'ChatServerPlayground.asgi.application'
+ASGI_APPLICATION = 'donchap.asgi.application'
 
 
 # Database

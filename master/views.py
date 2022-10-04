@@ -40,30 +40,45 @@ def lobby_view(request, *args, **kwargs):
     context = {}
     
     lobby_name = kwargs.get('lobby_name')
-
     lobby = Lobby.objects.get(lobby_name = lobby_name)
-    content = []
-    for i in lobby.lobby_parameters.all():
-        content.append(i.parameter_field.split())
 
+
+    content = []
     if user.pk == lobby.game_master:
         context['is_master'] = True
+        
+        for i in lobby.lobby_parameters.all():
+            content.append([i.parameter_field.split()[0], 
+                            i.parameter_field.split()[1]])
     else:
         context['is_master'] = False
-        flag = False
-        for p in lobby.players.all():
-            if p.player_id == user.pk:
-                flag = True
-        if not flag:
+        
+        try:
+            player = lobby.players.get(player_id = user.pk)
+            print('b')
+        except:
+            print('a')
             player = LobbyPlayer(lobby_identifier=lobby, player_id=user.pk)
             player.save()
             for i in lobby.lobby_parameters.all():
-                player_parameter = PlayerParameter(player_identifier=player)
+                player_parameter = PlayerParameter(player_identifier=player, parameter_name=i.parameter_field.split()[0])
                 player_parameter.save()
 
 
-    context['content']=content
+        player = lobby.players.get(player_id = user.pk)
+        for i in range(len(lobby.lobby_parameters.all())):
+            parameter = lobby.lobby_parameters.all()[i]
+            print(player.player_parameters.all()[i].player_parameter)
+            content.append([parameter.parameter_field.split()[0], 
+                            parameter.parameter_field.split()[1], 
+                            player.player_parameters.all()[i].player_parameter])
+
+    print(content)
+    context['lobby_name'] = lobby_name
+    context['content'] = content
     return render(request, "master/lobby.html", context)
+
+
 
 def connect_lobby_view(request):
     user = request.user

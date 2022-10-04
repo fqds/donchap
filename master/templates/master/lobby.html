@@ -14,28 +14,49 @@
 </style>
 
 
-{% if is_master %}
 <div class="container-main mt-1 ms-1">
     <ul>
+        {% if is_master %}
         {% for parameter in content %}
         <li>
             {{ parameter.1 }}
         </li>
         {% endfor %}
-    </ul>
-</div>
-{% else %}
-<div class="container-main mt-1 ms-1">
-    <ul>
+        {% else %}
         {% for parameter in content %}
         <li>
             <p>{{ parameter.1 }}</p>
-            <p><input type="text" name="{{parameter.1}}" id="id_character_{{parameter.0}}"></input></p>
+            <p><input type="text" name="{{parameter.1}}" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')" value="{{parameter.2}}"></input></p>
         </li>
         {% endfor %}
+        {% endif %}
     </ul>
 </div>
-{% endif %}
+
+<script type="text/javascript">
+	var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+
+	var ws_path = ws_scheme + '://' + window.location.host + "/lobby_asgi/{{lobby_name}}/"; // development
+
+
+    {% if is_master %}
+
+    {% else %}
+    var player_socket = new WebSocket(ws_path);
+
+    function input_onchange(parameter_name) {
+        var parameter_id = "id_character_" + parameter_name
+        var parameter_value = document.getElementById(parameter_id).value
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "parameter_update",
+            "parameter_name": parameter_name,
+            "parameter_value": parameter_value,
+        }))
+    }
+    {% endif %}
+
+</script>
 
 
 {% endblock content %}
