@@ -24,18 +24,8 @@ def create_lobby_view(request, *args, **kwargs):
         except Lobby.DoesNotExist:
             lobby = Lobby(lobby_name=lobby_name,game_master=user.pk)
             lobby.save()
-            content = []
-            temp = []
-            for i in raw_content.split():
-                for j in ['a','b','c','d']:
-                    if i==j and temp:
-                        content.append(temp)
-                        temp = []
-                temp.append(i)
-            content.append(temp)
-            for i in content:
-                temp = ' '.join(i)
-                lobby_parameter = LobbyParameter(lobby_identifier=lobby, parameter_field=temp)
+            for i in raw_content.split('\r\n'):
+                lobby_parameter = LobbyParameter(lobby_identifier=lobby, parameter_field=i)
                 lobby_parameter.save()
             return redirect('lobby:view', lobby_name=lobby_name)
     else:
@@ -73,7 +63,6 @@ def lobby_view(request, *args, **kwargs):
 
 
     context['content']=content
-    print(context)
     return render(request, "master/lobby.html", context)
 
 def connect_lobby_view(request):
