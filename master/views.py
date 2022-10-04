@@ -7,7 +7,6 @@ from master.models import (
     LobbyPlayer,
     PlayerParameter,
 )
-from account.models import Account
 
 def create_lobby_view(request, *args, **kwargs):
     user = request.user
@@ -22,7 +21,6 @@ def create_lobby_view(request, *args, **kwargs):
         raw_content = request.POST['content']
         try:
             lobby = Lobby.objects.get(lobby_name = lobby_name)
-            print('a')
         except Lobby.DoesNotExist:
             lobby = Lobby(lobby_name=lobby_name,game_master=user.pk)
             lobby.save()
@@ -49,8 +47,8 @@ def lobby_view(request, *args, **kwargs):
     user = request.user
     if not user.is_authenticated:
         return redirect('entrance')
-    
     context = {}
+    
     lobby_name = kwargs.get('lobby_name')
 
     lobby = Lobby.objects.get(lobby_name = lobby_name)
@@ -77,3 +75,16 @@ def lobby_view(request, *args, **kwargs):
     context['content']=content
     print(context)
     return render(request, "master/lobby.html", context)
+
+def connect_lobby_view(request):
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('entrance')
+    context = {}
+
+    if request.POST:
+        lobby_name = request.POST['lobby_name']
+        if Lobby.objects.get(lobby_name = lobby_name):
+            return redirect('lobby:view', lobby_name=lobby_name)
+        
+    return render(request, "master/connect_lobby.html", context)

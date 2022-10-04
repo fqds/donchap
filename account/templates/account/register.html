@@ -23,11 +23,11 @@
     <div class="d-flex justify-content-center">
         <form class="form-signin" method="post">{% csrf_token %}
             
-            <input type="text" name="username" id="inputUsername" class="form-control username-field mb-2" placeholder="Username" required>
+            <input type="text" name="username" class="form-control username-field mb-2" placeholder="Username" required>
 
-            <input type="password" name="password1" id="inputPassword1" class="form-control password1-field mb-2" placeholder="Password" required>
+            <input type="password" name="password1" class="form-control password1-field mb-2" placeholder="Password" required>
 
-            <input type="password" name="password2" id="inputPassword2" class="form-control password2-field mb-2" placeholder="Confirm password" required>
+            <input type="password" name="password2" class="form-control password2-field mb-2" placeholder="Confirm password" required>
 
             {% for field in registration_form %}
 			{% for error in field.errors %}

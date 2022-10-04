@@ -16,8 +16,8 @@
 <div class="container-fluid mt-5">
     <div class="d-flex justify-content-center">
         <form class="form-signin" method="post">{% csrf_token %}
-            <input type="text" name="username" id="inputUsername" class="form-control username-field mb-2" placeholder="Имя пользователя" required autofocus>
-            <input type="password" name="password" id="inputPassword" class="form-control password-field mb-2" placeholder="Пароль" required>
+            <input type="text" name="username" class="form-control username-field mb-2" placeholder="Имя пользователя" required autofocus>
+            <input type="password" name="password" class="form-control password-field mb-2" placeholder="Пароль" required>
 
             {% for field in login_form %}
             {% for error in field.errors %}

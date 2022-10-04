@@ -24,7 +24,7 @@ from account.views import (
     account_view,
     logout_view,
 )
-from master.views import create_lobby_view
+from master.views import create_lobby_view, connect_lobby_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('entrance/', entrance_view, name="entrance"),
@@ -34,5 +34,6 @@ urlpatterns = [
     path('logout/', logout_view, name="logout"),
 
     path('create_lobby/', create_lobby_view, name="create_lobby"),
+    path('connect_lobby/', connect_lobby_view, name="connect_lobby"),
     path('lobby/', include('master.urls', namespace="lobby")),
 ]

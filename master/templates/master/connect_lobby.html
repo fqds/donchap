@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style type="text/css">
+</style>
+
+<div class="container-fluid mt-5">
+    <div class="d-flex justify-content-center">
+        <form class="form-signin" method="post">{% csrf_token %}
+            <input type="text" name="lobby_name" class="form-control" placeholder="Название лобби" required autofocus>
+            <div class="d-flex justify-content-center mt-2"><button class="btn btn-lg btn-primary btn-block py-1" type="submit">Войти</button></div>
+        </form>
+    </div>
+</div>
+
+
+{% endblock content %}
