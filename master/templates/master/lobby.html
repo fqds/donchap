@@ -9,48 +9,101 @@
     ul {
         padding-left: 0;
     }
-    .container-main {
-    }
 </style>
 
 
+{% if is_master %}
+<div class="container-main mt-1 ms-1">
+    <ul id="ul_master" style="display: flex;">
+        <li style="padding-right: 20px;">
+            <ul>
+                {% for parameter in content %}
+                <li>
+                    {{ parameter.1 }}
+                </li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+</div>
+{% else %}
 <div class="container-main mt-1 ms-1">
     <ul>
-        {% if is_master %}
-        {% for parameter in content %}
-        <li>
-            {{ parameter.1 }}
-        </li>
-        {% endfor %}
-        {% else %}
         {% for parameter in content %}
         <li>
             <p>{{ parameter.1 }}</p>
             <p><input type="text" name="{{parameter.1}}" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')" value="{{parameter.2}}"></input></p>
         </li>
         {% endfor %}
-        {% endif %}
     </ul>
 </div>
+{% endif %}
 
 <script type="text/javascript">
 	var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
 
-	var ws_path = ws_scheme + '://' + window.location.host + "/lobby_asgi/{{lobby_name}}/"; // development
-
 
     {% if is_master %}
+	var ws_path = ws_scheme + '://' + window.location.host + "/lobby_master_asgi/{{lobby_name}}/"; 
+
+    const ul_control = document.querySelector('#ul_master')
+
+    {% for i in players %}
+    const li_{{i}} = document.createElement('li')
+    const ul_{{i}} = document.createElement('ul')
+    ul_control.appendChild(li_{{i}})
+    li_{{i}}.appendChild(ul_{{i}})
+    li_{{i}}.style.paddingRight = "10px"
+
+    {% for parameter in content %}
+    const li_{{i}}_{{parameter.0}} = document.createElement('li')
+    ul_{{i}}.appendChild(li_{{i}}_{{parameter.0}})
+    {% endfor %}
+    {% endfor %}
+
+    var master_socket = new WebSocket(ws_path);
+
+    master_socket.onopen = function(e) {
+        master_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "get_data",
+        }))
+    }
+
+    master_socket.onmessage = function(message) {
+        var data = JSON.parse(message.data);
+
+        if (data.receive_data) {
+            console.log(data.content)
+            {% for i in players %}
+            {% for parameter in content %}
+            i = data.content[{{i}}][1][{{parameter.0}}]
+            if (i) {
+                li_{{i}}_{{parameter.0}}.textContent = data.content[{{i}}][1][{{parameter.0}}]
+            }
+            else {
+                li_{{i}}_{{parameter.0}}.textContent = "⁣"
+            }
+            {% endfor %}
+            {% endfor %}
+        }
+    }
+
+
+
+
 
     {% else %}
+	var ws_path = ws_scheme + '://' + window.location.host + "/lobby_asgi/{{lobby_name}}/"; 
+
     var player_socket = new WebSocket(ws_path);
 
-    function input_onchange(parameter_name) {
-        var parameter_id = "id_character_" + parameter_name
-        var parameter_value = document.getElementById(parameter_id).value
+    function input_onchange(parameter_id) {
+        var parameter_value = document.getElementById("id_character_" + parameter_id).value
         player_socket.send(JSON.stringify({
             "lobby_name": '{{lobby_name}}',
             "command": "parameter_update",
-            "parameter_name": parameter_name,
+            "parameter_id": parameter_id,
             "parameter_value": parameter_value,
         }))
     }

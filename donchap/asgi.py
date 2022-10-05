@@ -12,7 +12,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator
 
-from master.consumers import PlayerConsumer
+from master.consumers import PlayerConsumer, MasterConsumer
 
 
 application = ProtocolTypeRouter({
@@ -20,6 +20,7 @@ application = ProtocolTypeRouter({
 		AuthMiddlewareStack(
 			URLRouter([
 					path('lobby_asgi/<lobby_name>/', PlayerConsumer.as_asgi()),
+					path('lobby_master_asgi/<lobby_name>/', MasterConsumer.as_asgi()),
 			])
 		)
 	),

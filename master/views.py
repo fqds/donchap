@@ -6,6 +6,7 @@ from master.models import (
     LobbyParameter,
     LobbyPlayer,
     PlayerParameter,
+    UpdatedParameter,
 )
 
 def create_lobby_view(request, *args, **kwargs):
@@ -47,33 +48,34 @@ def lobby_view(request, *args, **kwargs):
     if user.pk == lobby.game_master:
         context['is_master'] = True
         
-        for i in lobby.lobby_parameters.all():
-            content.append([i.parameter_field.split()[0], 
-                            i.parameter_field.split()[1]])
+        for i in range(len(lobby.lobby_parameters.all())):
+            temp = lobby.lobby_parameters.all()[i]
+            content.append([i, 
+                            temp.parameter_field.split()[1]])
+
+        players = []
+        for i in range(len(lobby.players.all())): players.append(i)
+        context['players'] = players
+
     else:
         context['is_master'] = False
         
         try:
             player = lobby.players.get(player_id = user.pk)
-            print('b')
         except:
-            print('a')
             player = LobbyPlayer(lobby_identifier=lobby, player_id=user.pk)
             player.save()
-            for i in lobby.lobby_parameters.all():
-                player_parameter = PlayerParameter(player_identifier=player, parameter_name=i.parameter_field.split()[0])
+            for i in range(len(lobby.lobby_parameters.all())):
+                player_parameter = PlayerParameter(player_identifier=player, parameter_id=i)
                 player_parameter.save()
 
 
         player = lobby.players.get(player_id = user.pk)
         for i in range(len(lobby.lobby_parameters.all())):
             parameter = lobby.lobby_parameters.all()[i]
-            print(player.player_parameters.all()[i].player_parameter)
-            content.append([parameter.parameter_field.split()[0], 
+            content.append([i, 
                             parameter.parameter_field.split()[1], 
                             player.player_parameters.all()[i].player_parameter])
-
-    print(content)
     context['lobby_name'] = lobby_name
     context['content'] = content
     return render(request, "master/lobby.html", context)
