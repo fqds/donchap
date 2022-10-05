@@ -54,7 +54,7 @@ def lobby_view(request, *args, **kwargs):
                             temp.parameter_field.split()[1]])
 
         players = []
-        for i in range(len(lobby.players.all())): players.append(i)
+        for i in lobby.players.all(): players.append(i.player_id)
         context['players'] = players
 
     else:

@@ -27,7 +27,7 @@ def parameter_update(parameter_id, parameter_value, lobby_name, user_id):
     parameter = player.player_parameters.get(parameter_id = parameter_id)
     parameter.player_parameter = parameter_value
     parameter.save()
-    update = UpdatedParameter(lobby_identifier=lobby, parameter=parameter_value, player_id=user_id)
+    update = UpdatedParameter(lobby_identifier=lobby, parameter=parameter_value, player_id=user_id, parameter_id=parameter.parameter_id)
     update.save()
 
 
@@ -38,37 +38,46 @@ class MasterConsumer(AsyncJsonWebsocketConsumer):
 
         try:
             if command == "get_update":
-                await get_update(content.get("lobby_name"))
+                data = await get_update(content.get("lobby_name"))
+
+                await self.send_json(
+                    {
+                        "update_data": True,
+                        "data_to_update": data
+                    },
+                )
             if command == "get_data":
                 data = await get_data(content.get("lobby_name"))
-                await self.send_data(data)
+                await self.send_json(
+                    {
+                        "receive_data": True,
+                        "content": data,
+                    },
+                )
 
         except Exception as e:
             print(e)
 
             
-    async def send_data(self, data):
-        await self.send_json(
-            {
-                "receive_data": True,
-                "content": data,
-            },
-        )
 
 @database_sync_to_async
 def get_update(lobby_name):
     lobby = Lobby.objects.get(lobby_name = lobby_name)
-    for i in lobby.updated_parameter.all():
-        print(i.parameter, i.player_id) 
+    data = []
+    if lobby.updated_parameters.all():
+        for i in lobby.updated_parameters.all():
+            data.append([i.player_id, i.parameter_id, i.parameter])
+    lobby.updated_parameters.all().delete()
+    return data
 
 @database_sync_to_async
 def get_data(lobby_name):
     lobby = Lobby.objects.get(lobby_name = lobby_name)
-    lobby.updated_parameters.all().delete()
 
     content = []
     for i in lobby.players.all():
         content.append([i.pk,[]])
         for i in i.player_parameters.all():
             content[-1][1].append(i.player_parameter)
+    lobby.updated_parameters.all().delete()
     return content

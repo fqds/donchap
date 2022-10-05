@@ -28,4 +28,5 @@ class PlayerParameter(models.Model):
 class UpdatedParameter(models.Model):
     lobby_identifier = models.ForeignKey(Lobby, related_name='updated_parameters', on_delete=models.CASCADE)
     parameter = models.CharField(max_length=1000)
+    parameter_id = models.IntegerField()
     player_id = models.IntegerField()
