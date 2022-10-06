@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from master.consumers import parameter_update
 
 from master.forms import CreateLobbyForm
 from master.models import (
@@ -25,8 +26,21 @@ def create_lobby_view(request, *args, **kwargs):
         except Lobby.DoesNotExist:
             lobby = Lobby(lobby_name=lobby_name,game_master=user.pk)
             lobby.save()
-            for i in raw_content.split('\r\n'):
-                lobby_parameter = LobbyParameter(lobby_identifier=lobby, parameter_field=i)
+            for parameter in raw_content.split('\r\n'):
+                i = parameter.split()
+                if len(i) == 3: 
+                    stat = i[1]
+                    formula = i[2]
+                elif len(i) == 2:
+                    stat = i[1]
+                    formula = ''
+                else: 
+                    stat = ''
+                    formula = ''
+                lobby_parameter = LobbyParameter(lobby_identifier=lobby,
+                                                 parameter_name=i[0],
+                                                 parameter_stat=stat,
+                                                 parameter_formula=formula,)
                 lobby_parameter.save()
             return redirect('lobby:view', lobby_name=lobby_name)
     else:
@@ -51,7 +65,9 @@ def lobby_view(request, *args, **kwargs):
         for i in range(len(lobby.lobby_parameters.all())):
             temp = lobby.lobby_parameters.all()[i]
             content.append([i, 
-                            temp.parameter_field.split()[1]])
+                            temp.parameter_name])
+            print(temp.parameter_name)
+        print(content)
 
         players = []
         for i in lobby.players.all(): players.append(i.player_id)
@@ -73,9 +89,14 @@ def lobby_view(request, *args, **kwargs):
         player = lobby.players.get(player_id = user.pk)
         for i in range(len(lobby.lobby_parameters.all())):
             parameter = lobby.lobby_parameters.all()[i]
+            if parameter.parameter_formula: l=3
+            elif parameter.parameter_stat: l=2
+            else: l=1
+
             content.append([i, 
-                            parameter.parameter_field.split()[1], 
-                            player.player_parameters.all()[i].player_parameter])
+                            parameter.parameter_name, 
+                            player.player_parameters.all()[i].player_parameter,
+                            l])
     context['lobby_name'] = lobby_name
     context['content'] = content
     return render(request, "master/lobby.html", context)

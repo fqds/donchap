@@ -7,10 +7,12 @@ class Lobby(models.Model):
     lobby_name = models.CharField(max_length=16)
     game_master = models.IntegerField()
 
-    
+
 class LobbyParameter(models.Model):
     lobby_identifier = models.ForeignKey(Lobby, related_name='lobby_parameters', on_delete=models.CASCADE)
-    parameter_field = models.CharField(max_length=60, null=True)
+    parameter_name = models.CharField(max_length=60, null=True)
+    parameter_stat = models.CharField(max_length=60, null=True)
+    parameter_formula = models.CharField(max_length=60, null=True)
 
 
 class LobbyPlayer(models.Model):

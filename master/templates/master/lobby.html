@@ -32,7 +32,13 @@
         {% for parameter in content %}
         <li>
             <p>{{ parameter.1 }}</p>
+            {% if parameter.3 == 1 %}
+            <p><textarea type="text" name="{{parameter.1}}" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')">{{parameter.2}}</textarea></p>
+            {% elif parameter.3 == 2 %}
             <p><input type="text" name="{{parameter.1}}" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')" value="{{parameter.2}}"></input></p>
+            {% else %}
+            <p id="id_character_{{parameter.0}}">{{parameter.2}}</p>
+            {% endif %}
         </li>
         {% endfor %}
     </ul>
