@@ -40,7 +40,8 @@ def create_lobby_view(request, *args, **kwargs):
                 lobby_parameter = LobbyParameter(lobby_identifier=lobby,
                                                  parameter_name=i[0],
                                                  parameter_stat=stat,
-                                                 parameter_formula=formula,)
+                                                 parameter_formula=formula,
+                                                 parameter_id=raw_content.split('\r\n').index(parameter),)
                 lobby_parameter.save()
             return redirect('lobby:view', lobby_name=lobby_name)
     else:
@@ -62,12 +63,9 @@ def lobby_view(request, *args, **kwargs):
     if user.pk == lobby.game_master:
         context['is_master'] = True
         
-        for i in range(len(lobby.lobby_parameters.all())):
-            temp = lobby.lobby_parameters.all()[i]
-            content.append([i, 
-                            temp.parameter_name])
-            print(temp.parameter_name)
-        print(content)
+        for i in lobby.lobby_parameters.all():
+            content.append([i.parameter_id, 
+                            i.parameter_name])
 
         players = []
         for i in lobby.players.all(): players.append(i.player_id)

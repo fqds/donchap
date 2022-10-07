@@ -13,6 +13,7 @@ class LobbyParameter(models.Model):
     parameter_name = models.CharField(max_length=60, null=True)
     parameter_stat = models.CharField(max_length=60, null=True)
     parameter_formula = models.CharField(max_length=60, null=True)
+    parameter_id = models.IntegerField()
 
 
 class LobbyPlayer(models.Model):

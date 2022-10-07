@@ -28,14 +28,14 @@
 </div>
 {% else %}
 <div class="container-main mt-1 ms-1">
-    <ul>
+    <ul id="id_ul_main">
         {% for parameter in content %}
         <li>
             <p>{{ parameter.1 }}</p>
             {% if parameter.3 == 1 %}
-            <p><textarea type="text" name="{{parameter.1}}" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')">{{parameter.2}}</textarea></p>
+            <p><textarea type="text" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')">{{parameter.2}}</textarea></p>
             {% elif parameter.3 == 2 %}
-            <p><input type="text" name="{{parameter.1}}" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')" value="{{parameter.2}}"></input></p>
+            <p><input type="text" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')" value="{{parameter.2}}"></input></p>
             {% else %}
             <p id="id_character_{{parameter.0}}">{{parameter.2}}</p>
             {% endif %}
@@ -90,8 +90,7 @@
     master_socket.onmessage = function(message) {
         var data = JSON.parse(message.data);
         if (data.update_data) {
-            content = data.data_to_update
-            console.log(content)
+            content = data.update_data
             if (content) {
                 for (i=0; i < content.length; i++) {
                     id_in_lobby = dict.indexOf(content[i][0])
@@ -103,7 +102,7 @@
         if (data.receive_data) {
             for(i=0; i<{{players}}.length; i++) {
                 for(j=0; j<li_main[0].children[0].children.length; j++) {
-                    text = data.content[i][1][j]
+                    text = data.receive_data[i][1][j]
                     if (text) {
                         li_main[i].children[0].children[j].textContent = text
                     }
@@ -125,6 +124,8 @@
 	var ws_path = ws_scheme + '://' + window.location.host + "/lobby_asgi/{{lobby_name}}/"; 
     var player_socket = new WebSocket(ws_path);
 
+    var li_main = document.getElementById("id_ul_main")
+
     function input_onchange(parameter_id) {
         var parameter_value = document.getElementById("id_character_" + parameter_id).value
         player_socket.send(JSON.stringify({
@@ -133,6 +134,15 @@
             "parameter_id": parameter_id,
             "parameter_value": parameter_value,
         }))
+    }
+
+    player_socket.onmessage = function(message) {
+        var data = JSON.parse(message.data)
+        if (data.update_stats) {
+            for (i=0; i<data.update_stats.length; i++) {
+                li_main.children[data.update_stats[i][0]].children[1].textContent = data.update_stats[i][1]
+            }
+        }
     }
     {% endif %}
 

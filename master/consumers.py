@@ -1,5 +1,7 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
+
+from master.math import recount
 from master.models import (
     Lobby,
     LobbyParameter,
@@ -15,8 +17,12 @@ class PlayerConsumer(AsyncJsonWebsocketConsumer):
 
         try:
             if command == "parameter_update":
-                await parameter_update(content.get("parameter_id"), content.get("parameter_value"), content.get("lobby_name"), self.scope["user"].pk )
+                data = await parameter_update(int(content.get("parameter_id")), content.get("parameter_value"), content.get("lobby_name"), self.scope["user"].pk )
 
+                await self.send_json(
+                    {
+                        "update_stats": data,
+                    },)
         except Exception as e:
             print(e)
 
@@ -29,7 +35,22 @@ def parameter_update(parameter_id, parameter_value, lobby_name, user_id):
     parameter.save()
     update = UpdatedParameter(lobby_identifier=lobby, parameter=parameter_value, player_id=user_id, parameter_id=parameter.parameter_id)
     update.save()
-
+    data = []
+    if lobby.lobby_parameters.get(parameter_id = parameter_id).parameter_stat:
+        for i in lobby.lobby_parameters.exclude(parameter_formula = ''):
+            if i.parameter_formula.find(lobby.lobby_parameters.all()[parameter_id].parameter_stat) != -1:
+                parameter = player.player_parameters.get(parameter_id=i.parameter_id) 
+                formula = i.parameter_formula
+                for j in lobby.lobby_parameters.exclude(parameter_stat = ''):
+                    if formula.count(j.parameter_stat) != 0:
+                        formula = formula.replace(j.parameter_stat, player.player_parameters.get(parameter_id=j.parameter_id).player_parameter)
+                parameter.player_parameter = recount(formula) 
+                parameter.save()
+                update = UpdatedParameter(lobby_identifier=lobby, parameter=parameter.player_parameter, player_id=user_id, parameter_id=i.parameter_id)
+                update.save()
+                data.append([i.parameter_id, parameter.player_parameter])
+    return data
+        
 
 
 class MasterConsumer(AsyncJsonWebsocketConsumer):
@@ -42,16 +63,14 @@ class MasterConsumer(AsyncJsonWebsocketConsumer):
 
                 await self.send_json(
                     {
-                        "update_data": True,
-                        "data_to_update": data
+                        "update_data": data,
                     },
                 )
             if command == "get_data":
                 data = await get_data(content.get("lobby_name"))
                 await self.send_json(
                     {
-                        "receive_data": True,
-                        "content": data,
+                        "receive_data": data,
                     },
                 )
 
