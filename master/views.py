@@ -80,8 +80,8 @@ def lobby_view(request, *args, **kwargs):
             player = LobbyPlayer(lobby_identifier=lobby, player_id=user.pk)
             player.save()
             for i in range(len(lobby.lobby_parameters.all())):
-                player_parameter = PlayerParameter(player_identifier=player, parameter_id=i)
-                player_parameter.save()
+                parameter_value = PlayerParameter(player_identifier=player, parameter_id=i)
+                parameter_value.save()
 
 
         player = lobby.players.get(player_id = user.pk)
@@ -93,7 +93,7 @@ def lobby_view(request, *args, **kwargs):
 
             content.append([i, 
                             parameter.parameter_name, 
-                            player.player_parameters.all()[i].player_parameter,
+                            player.parameters.all()[i].parameter_value,
                             l])
     context['lobby_name'] = lobby_name
     context['content'] = content

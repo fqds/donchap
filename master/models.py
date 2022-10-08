@@ -22,14 +22,14 @@ class LobbyPlayer(models.Model):
     
     
 class PlayerParameter(models.Model):
-    player_identifier = models.ForeignKey(LobbyPlayer, related_name='player_parameters', on_delete=models.CASCADE)
-    player_parameter = models.CharField(max_length=1000, default="")
+    player_identifier = models.ForeignKey(LobbyPlayer, related_name='parameters', on_delete=models.CASCADE)
+    parameter_value = models.CharField(max_length=1000, default="")
     parameter_id = models.IntegerField()
     class Meta():
         ordering = ['pk']
 
 class UpdatedParameter(models.Model):
     lobby_identifier = models.ForeignKey(Lobby, related_name='updated_parameters', on_delete=models.CASCADE)
-    parameter = models.CharField(max_length=1000)
+    parameter_value = models.CharField(max_length=1000)
     parameter_id = models.IntegerField()
     player_id = models.IntegerField()

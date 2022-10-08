@@ -30,25 +30,28 @@ class PlayerConsumer(AsyncJsonWebsocketConsumer):
 def parameter_update(parameter_id, parameter_value, lobby_name, user_id):
     lobby = Lobby.objects.get(lobby_name = lobby_name)
     player = lobby.players.get(player_id = user_id)
-    parameter = player.player_parameters.get(parameter_id = parameter_id)
-    parameter.player_parameter = parameter_value
+    parameter = player.parameters.get(parameter_id = parameter_id)
+    parameter.parameter_value = parameter_value
     parameter.save()
-    update = UpdatedParameter(lobby_identifier=lobby, parameter=parameter_value, player_id=user_id, parameter_id=parameter.parameter_id)
+    update = UpdatedParameter(lobby_identifier=lobby, parameter_value=parameter_value, player_id=user_id, parameter_id=parameter.parameter_id)
     update.save()
     data = []
     if lobby.lobby_parameters.get(parameter_id = parameter_id).parameter_stat:
         for i in lobby.lobby_parameters.exclude(parameter_formula = ''):
             if i.parameter_formula.find(lobby.lobby_parameters.all()[parameter_id].parameter_stat) != -1:
-                parameter = player.player_parameters.get(parameter_id=i.parameter_id) 
-                formula = i.parameter_formula
-                for j in lobby.lobby_parameters.exclude(parameter_stat = ''):
-                    if formula.count(j.parameter_stat) != 0:
-                        formula = formula.replace(j.parameter_stat, player.player_parameters.get(parameter_id=j.parameter_id).player_parameter)
-                parameter.player_parameter = recount(formula) 
-                parameter.save()
-                update = UpdatedParameter(lobby_identifier=lobby, parameter=parameter.player_parameter, player_id=user_id, parameter_id=i.parameter_id)
-                update.save()
-                data.append([i.parameter_id, parameter.player_parameter])
+                try:
+                    parameter = player.parameters.get(parameter_id=i.parameter_id) 
+                    formula = i.parameter_formula
+                    for j in lobby.lobby_parameters.exclude(parameter_stat = ''):
+                        if formula.count(j.parameter_stat) != 0:
+                            formula = formula.replace(j.parameter_stat, player.parameters.get(parameter_id=j.parameter_id).parameter_value)
+                    parameter.parameter_value = recount(formula) 
+                    update = UpdatedParameter(lobby_identifier=lobby, parameter_value=parameter.parameter_value, player_id=user_id, parameter_id=i.parameter_id)
+                    parameter.save()
+                    update.save()
+                    data.append([i.parameter_id, parameter.parameter_value])
+                except:
+                    pass
     return data
         
 
@@ -85,7 +88,7 @@ def get_update(lobby_name):
     data = []
     if lobby.updated_parameters.all():
         for i in lobby.updated_parameters.all():
-            data.append([i.player_id, i.parameter_id, i.parameter])
+            data.append([i.player_id, i.parameter_id, i.parameter_value])
     lobby.updated_parameters.all().delete()
     return data
 
@@ -96,7 +99,7 @@ def get_data(lobby_name):
     content = []
     for i in lobby.players.all():
         content.append([i.pk,[]])
-        for i in i.player_parameters.all():
-            content[-1][1].append(i.player_parameter)
+        for i in i.parameters.all():
+            content[-1][1].append(i.parameter_value)
     lobby.updated_parameters.all().delete()
     return content
