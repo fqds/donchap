@@ -20,7 +20,4 @@ class CreateLobbyForm(forms.Form):
 Уворот DODGE A*5+P*5
 УронБлижний DMG S*3+A*1
 УронДальний RDMG A*1+I*2+P*2
-УронМагический MDMG I*7+P*3
-Баффы
-Деньги
-Инвентарь'''))
+УронМагический MDMG I*7+P*3'''))

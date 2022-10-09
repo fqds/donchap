@@ -4,10 +4,10 @@ from channels.db import database_sync_to_async
 from master.math import recount
 from master.models import (
     Lobby,
-    LobbyParameter,
-    LobbyPlayer,
-    PlayerParameter,
+    PlayerItem,
+    ItemModifier,
     UpdatedParameter,
+    
 )
 
 
@@ -23,6 +23,17 @@ class PlayerConsumer(AsyncJsonWebsocketConsumer):
                     {
                         "update_stats": data,
                     },)
+            if command == "create_item":
+                await create_item(content.get("lobby_name"), self.scope["user"].pk)
+
+                await self.send_json(
+                    {
+                        "create_item": True,
+                    },)
+            if command == "update_item_name":
+                await update_item_name(content.get("item_id"), content.get("item_name"), content.get("lobby_name"), self.scope["user"].pk)
+            if command == "update_item_description":
+                await update_item_description(content.get("item_id"), content.get("item_description"), content.get("lobby_name"), self.scope["user"].pk)
         except Exception as e:
             print(e)
 
@@ -54,6 +65,28 @@ def parameter_update(parameter_id, parameter_value, lobby_name, user_id):
                     pass
     return data
         
+@database_sync_to_async
+def create_item(lobby_name, user_id):
+    lobby = Lobby.objects.get(lobby_name=lobby_name)
+    player = lobby.players.get(player_id=user_id)
+    item = PlayerItem(player_identifier=player, item_id=len(player.items.all()))
+    item.save()
+
+@database_sync_to_async
+def update_item_name(item_id, item_name, lobby_name, user_id):
+    lobby = Lobby.objects.get(lobby_name=lobby_name)
+    player = lobby.players.get(player_id=user_id)
+    item = player.items.get(item_id=item_id)
+    item.item_name = item_name
+    item.save()
+
+@database_sync_to_async
+def update_item_description(item_id, item_description, lobby_name, user_id):
+    lobby = Lobby.objects.get(lobby_name=lobby_name)
+    player = lobby.players.get(player_id=user_id)
+    item = player.items.get(item_id=item_id)
+    item.item_description = item_description
+    item.save()
 
 
 class MasterConsumer(AsyncJsonWebsocketConsumer):

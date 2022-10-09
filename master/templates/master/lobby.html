@@ -30,17 +30,27 @@
 <div class="container-main mt-1 ms-1">
     <ul id="id_ul_main">
         {% for parameter in content %}
-        <li>
-            <p>{{ parameter.1 }}</p>
-            {% if parameter.3 == 1 %}
-            <p><textarea type="text" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')">{{parameter.2}}</textarea></p>
-            {% elif parameter.3 == 2 %}
-            <p><input type="text" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')" value="{{parameter.2}}"></input></p>
+        <li class="d-flex">
+            {% if parameter.3 %}
+            <div>{{ parameter.1 }} ⁣<input type="text" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')" value="{{parameter.2}}"></input></div>
             {% else %}
-            <p id="id_character_{{parameter.0}}">{{parameter.2}}</p>
+            {{ parameter.1 }}: ⁣<div class="d-flex" id="id_character_{{parameter.0}}">{{parameter.2}}</div>
             {% endif %}
         </li>
         {% endfor %}
+        <li>
+            <div class="d-flex">
+            <div class="d-flex pe-5">Инвентарь</div><a class="d-flex" onclick="create_item()">+</a>
+            </div>
+            <ul id="id_ul_inventory">
+                {% for item in inventory %}
+                <li>
+                    <input onchange="item_name_onchange({{item.0}})" value="{{item.1}}"></input>
+                    <textarea onchange="item_description_onchange({{item.0}})">{{item.2}}</textarea>
+                </li>
+                {% endfor %}
+            </ul>
+        </li>
     </ul>
 </div>
 {% endif %}
@@ -124,7 +134,8 @@
 	var ws_path = ws_scheme + '://' + window.location.host + "/lobby_asgi/{{lobby_name}}/"; 
     var player_socket = new WebSocket(ws_path);
 
-    var li_main = document.getElementById("id_ul_main")
+    var ul_main = document.getElementById("id_ul_main")
+    var ul_inventory = document.getElementById("id_ul_inventory")
 
     function input_onchange(parameter_id) {
         var parameter_value = document.getElementById("id_character_" + parameter_id).value
@@ -136,12 +147,44 @@
         }))
     }
 
+    function create_item() {player_socket.send(JSON.stringify({
+        "lobby_name": '{{lobby_name}}',
+        "command": "create_item",
+    }))
+    }
+    
+    function item_name_onchange(item_id) {
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "update_item_name",
+            "item_id": item_id,
+            "item_name": ul_inventory.children[item_id].children[0].value,
+        }))
+    }
+
+    function item_description_onchange(item_id) {
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "update_item_description",
+            "item_id": item_id,
+            "item_description": ul_inventory.children[item_id].children[1].value,
+        }))
+    }
+
     player_socket.onmessage = function(message) {
         var data = JSON.parse(message.data)
         if (data.update_stats) {
             for (i=0; i<data.update_stats.length; i++) {
-                li_main.children[data.update_stats[i][0]].children[1].textContent = data.update_stats[i][1]
+                ul_main.children[data.update_stats[i][0]].children[0].textContent = data.update_stats[i][1]
             }
+        }
+        if (data.create_item) {
+            ul_inventory.appendChild(document.createElement("li"))
+            const item_id = ul_inventory.children.length -1
+            ul_inventory.children[item_id].appendChild(document.createElement("input"))
+            ul_inventory.children[item_id].appendChild(document.createElement("textarea"))
+            ul_inventory.children[item_id].children[0].onchange = item_name_onchange(item_id) 
+            ul_inventory.children[item_id].children[1].onchange = item_description_onchange(item_id)
         }
     }
     {% endif %}
