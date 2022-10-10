@@ -41,8 +41,29 @@ class ItemModifier(models.Model):
     class Meta():
         ordering = ['pk']
 
-class UpdatedParameter(models.Model):
-    lobby_identifier = models.ForeignKey(Lobby, related_name='updated_parameters', on_delete=models.CASCADE)
+class UpdateItemDescription(models.Model):
+    lobby_identifier = models.ForeignKey(Lobby, related_name='update_item_description', on_delete=models.CASCADE)
+    player_id = models.IntegerField()
+    item_id = models.IntegerField()
+    item_description = models.CharField(max_length=1000)
+
+class UpdateItemName(models.Model):
+    lobby_identifier = models.ForeignKey(Lobby, related_name='update_item_names', on_delete=models.CASCADE)
+    player_id = models.IntegerField()
+    item_id = models.IntegerField()
+    item_name = models.CharField(max_length=1000)
+
+class UpdateCreateItem(models.Model):
+    lobby_identifier = models.ForeignKey(Lobby, related_name='update_create_items', on_delete=models.CASCADE)
+    player_id = models.IntegerField()
+
+class UpdateDeleteItem(models.Model):
+    lobby_identifier = models.ForeignKey(Lobby, related_name='update_delete_items', on_delete=models.CASCADE)
+    player_id = models.IntegerField()
+    item_id = models.IntegerField()
+
+class UpdateParameter(models.Model):
+    lobby_identifier = models.ForeignKey(Lobby, related_name='update_parameters', on_delete=models.CASCADE)
     parameter_value = models.CharField(max_length=20)
     parameter_id = models.IntegerField()
     player_id = models.IntegerField()

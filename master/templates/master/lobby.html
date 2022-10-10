@@ -47,6 +47,7 @@
                 <li>
                     <input onchange="item_name_onchange({{item.0}})" value="{{item.1}}"></input>
                     <textarea onchange="item_description_onchange({{item.0}})">{{item.2}}</textarea>
+                    <a onclick="item_delete_onclick({{item.0}})">-</a>
                 </li>
                 {% endfor %}
             </ul>
@@ -101,11 +102,44 @@
         var data = JSON.parse(message.data);
         if (data.update_data) {
             content = data.update_data
-            if (content) {
-                for (i=0; i < content.length; i++) {
-                    id_in_lobby = dict.indexOf(content[i][0])
-                    li_main[id_in_lobby].children[0].children[content[i][1]].textContent = content[i][2]
+            console.log(content)
+            for (i=0; i<content[0].length; i++) {
+                id_in_lobby = dict.indexOf(content[0][i][0])
+                li_main[id_in_lobby].children[0].children[content[0][i][1]].textContent = content[0][i][2]
+            }
+            for (i=0; i<content[1].length; i++) {
+                id_in_lobby = dict.indexOf(content[1][i][0])
+                var item_id = li_main[id_in_lobby].children[1].children.length
+                li_main[id_in_lobby].children[1].appendChild(document.createElement("li"))
+                li_main[id_in_lobby].children[1].children[item_id].appendChild(document.createElement("div"))
+                li_main[id_in_lobby].children[1].children[item_id].appendChild(document.createElement("div"))
+                li_main[id_in_lobby].children[1].children[item_id].children[0].textContent = "⁣"
+                li_main[id_in_lobby].children[1].children[item_id].children[1].textContent = "⁣"
+            }
+            for (i=0; i<content[2].length; i++) {
+                id_in_lobby = dict.indexOf(content[2][i][0])
+                var item_id = content[2][i][1]
+                if (content[2][i][2]) {
+                    li_main[id_in_lobby].children[1].children[item_id].children[0].textContent = content[2][i][2]
                 }
+                else {
+                    li_main[id_in_lobby].children[1].children[item_id].children[0].textContent = "⁣"
+                }
+            }
+            for (i=0; i<content[3].length; i++) {
+                id_in_lobby = dict.indexOf(content[3][i][0])
+                var item_id = content[3][i][1]
+                if (content[3][i][2]) {
+                    li_main[id_in_lobby].children[1].children[item_id].children[1].textContent = content[3][i][2]
+                }
+                else {
+                    li_main[id_in_lobby].children[1].children[item_id].children[1].textContent = "⁣"
+                }
+            }
+            for (i=0; i<content[4].length; i++) {
+                id_in_lobby = dict.indexOf(content[4][i][0])
+                li_main[id_in_lobby].children[1].removeChild(li_main[id_in_lobby].children[1].children[content[4][i][1]])
+                
             }
             setTimeout(update_data, 1000)
         }
@@ -120,6 +154,27 @@
                         li_main[i].children[0].children[j].textContent = "⁣"
                     }
 
+                }
+                li_main[i].appendChild(document.createElement("ul"))
+                li_main[i].children[1].textContent = 'Инвентарь: '
+                for (j=0; j<data.receive_data[i][2].length; j++) {
+                    li_main[i].children[1].appendChild(document.createElement("li"))
+                    name = data.receive_data[i][2][j][0]
+                    li_main[i].children[1].children[j].appendChild(document.createElement("div"))
+                    li_main[i].children[1].children[j].appendChild(document.createElement("div"))
+                    if (name) {
+                        li_main[i].children[1].children[j].children[0].textContent = name
+                    }
+                    else {
+                        li_main[i].children[1].children[j].children[0].textContent = "⁣"
+                    }
+                    description = data.receive_data[i][2][j][1]
+                    if (description) {
+                        li_main[i].children[1].children[j].children[1].textContent = description
+                    }
+                    else {
+                        li_main[i].children[1].children[j].children[1].textContent = "⁣"
+                    }
                 }
             }
             setTimeout(update_data, 2000) 
@@ -171,6 +226,28 @@
         }))
     }
 
+    function item_delete_onclick(item_id) {
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "delete_item",
+            "item_id": item_id,
+        }))
+        console.log(ul_inventory)
+        ul_inventory.removeChild(ul_inventory.children[item_id])
+        for (i=item_id; i<ul_inventory.children.length; i++) {
+            var item_id = ul_inventory.children.length -1
+            var text_item_id = "("+i+")"
+            console.log(text_item_id) 
+            console.log(i, ul_inventory.children[i].children[2])
+            ul_inventory.children[i].children[0].setAttribute("onchange","item_name_onchange"+text_item_id);
+            ul_inventory.children[i].children[1].setAttribute("onchange","item_description_onchange"+text_item_id);
+            ul_inventory.children[i].children[2].setAttribute("onclick", "item_delete_onclick"+text_item_id);
+            console.log(i, ul_inventory.children[i].children[2])
+        }
+        console.log(ul_inventory)
+        
+    }
+
     player_socket.onmessage = function(message) {
         var data = JSON.parse(message.data)
         if (data.update_stats) {
@@ -178,13 +255,18 @@
                 ul_main.children[data.update_stats[i][0]].children[0].textContent = data.update_stats[i][1]
             }
         }
+
         if (data.create_item) {
             ul_inventory.appendChild(document.createElement("li"))
-            const item_id = ul_inventory.children.length -1
+            var item_id = ul_inventory.children.length -1
+            var text_item_id = "("+item_id+")"
             ul_inventory.children[item_id].appendChild(document.createElement("input"))
             ul_inventory.children[item_id].appendChild(document.createElement("textarea"))
-            ul_inventory.children[item_id].children[0].onchange = item_name_onchange(item_id) 
-            ul_inventory.children[item_id].children[1].onchange = item_description_onchange(item_id)
+            ul_inventory.children[item_id].appendChild(document.createElement("a"))
+            ul_inventory.children[item_id].children[0].setAttribute("onchange","item_name_onchange"+text_item_id);
+            ul_inventory.children[item_id].children[1].setAttribute("onchange","item_description_onchange"+text_item_id);
+            ul_inventory.children[item_id].children[2].setAttribute("onclick","item_delete_onclick"+text_item_id);
+            ul_inventory.children[item_id].children[2].textContent = "-"
         }
     }
     {% endif %}
