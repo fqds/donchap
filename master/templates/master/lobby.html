@@ -48,6 +48,7 @@
                     <input onchange="item_name_onchange({{item.0}})" value="{{item.1}}"></input>
                     <textarea onchange="item_description_onchange({{item.0}})">{{item.2}}</textarea>
                     <a onclick="item_delete_onclick({{item.0}})">-</a>
+                    {% comment %} <a onclick="item_add_modifier({{item.0}})">-</a> {% endcomment %}
                 </li>
                 {% endfor %}
             </ul>
@@ -202,10 +203,22 @@
         }))
     }
 
-    function create_item() {player_socket.send(JSON.stringify({
+    function create_item() {
+        player_socket.send(JSON.stringify({
         "lobby_name": '{{lobby_name}}',
         "command": "create_item",
-    }))
+        }))
+
+        ul_inventory.appendChild(document.createElement("li"))
+        var item_id = ul_inventory.children.length -1
+        var text_item_id = "("+item_id+")"
+        ul_inventory.children[item_id].appendChild(document.createElement("input"))
+        ul_inventory.children[item_id].appendChild(document.createElement("textarea"))
+        ul_inventory.children[item_id].appendChild(document.createElement("a"))
+        ul_inventory.children[item_id].children[0].setAttribute("onchange","item_name_onchange"+text_item_id);
+        ul_inventory.children[item_id].children[1].setAttribute("onchange","item_description_onchange"+text_item_id);
+        ul_inventory.children[item_id].children[2].setAttribute("onclick","item_delete_onclick"+text_item_id);
+        ul_inventory.children[item_id].children[2].textContent = "-"
     }
     
     function item_name_onchange(item_id) {
@@ -232,6 +245,7 @@
             "command": "delete_item",
             "item_id": item_id,
         }))
+
         console.log(ul_inventory)
         ul_inventory.removeChild(ul_inventory.children[item_id])
         for (i=item_id; i<ul_inventory.children.length; i++) {
@@ -243,32 +257,17 @@
             ul_inventory.children[i].children[1].setAttribute("onchange","item_description_onchange"+text_item_id);
             ul_inventory.children[i].children[2].setAttribute("onclick", "item_delete_onclick"+text_item_id);
             console.log(i, ul_inventory.children[i].children[2])
-        }
-        console.log(ul_inventory)
+        }        
+    }
+
+    {% comment %} function item_add_modifier(item_id) {
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "add_modifier_item",
+            "item_id": item_id,
+        }))
         
-    }
-
-    player_socket.onmessage = function(message) {
-        var data = JSON.parse(message.data)
-        if (data.update_stats) {
-            for (i=0; i<data.update_stats.length; i++) {
-                ul_main.children[data.update_stats[i][0]].children[0].textContent = data.update_stats[i][1]
-            }
-        }
-
-        if (data.create_item) {
-            ul_inventory.appendChild(document.createElement("li"))
-            var item_id = ul_inventory.children.length -1
-            var text_item_id = "("+item_id+")"
-            ul_inventory.children[item_id].appendChild(document.createElement("input"))
-            ul_inventory.children[item_id].appendChild(document.createElement("textarea"))
-            ul_inventory.children[item_id].appendChild(document.createElement("a"))
-            ul_inventory.children[item_id].children[0].setAttribute("onchange","item_name_onchange"+text_item_id);
-            ul_inventory.children[item_id].children[1].setAttribute("onchange","item_description_onchange"+text_item_id);
-            ul_inventory.children[item_id].children[2].setAttribute("onclick","item_delete_onclick"+text_item_id);
-            ul_inventory.children[item_id].children[2].textContent = "-"
-        }
-    }
+    } {% endcomment %}
     {% endif %}
 
 </script>

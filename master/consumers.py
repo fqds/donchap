@@ -20,19 +20,9 @@ class PlayerConsumer(AsyncJsonWebsocketConsumer):
 
         try:
             if command == "parameter_update":
-                data = await parameter_update(int(content.get("parameter_id")), content.get("parameter_value"), content.get("lobby_name"), self.scope["user"].pk )
-
-                await self.send_json(
-                    {
-                        "update_stats": data,
-                    },)
+                await parameter_update(int(content.get("parameter_id")), content.get("parameter_value"), content.get("lobby_name"), self.scope["user"].pk )
             if command == "create_item":
                 await create_item(content.get("lobby_name"), self.scope["user"].pk)
-
-                await self.send_json(
-                    {
-                        "create_item": True,
-                    },)
             if command == "update_item_name":
                 await update_item_name(content.get("item_id"), content.get("item_name"), content.get("lobby_name"), self.scope["user"].pk)
             if command == "update_item_description":

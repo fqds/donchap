@@ -35,7 +35,7 @@ class PlayerItem(models.Model):
         ordering = ['pk']
 
 class ItemModifier(models.Model):
-    item_identifier = models.ForeignKey(PlayerItem, related_name='stats', on_delete=models.CASCADE)
+    item_identifier = models.ForeignKey(PlayerItem, related_name='modifiers', on_delete=models.CASCADE)
     modifier_stat = models.CharField(max_length=10, null=True)
     modifier_value = models.CharField(max_length=10, null=True)
     class Meta():
