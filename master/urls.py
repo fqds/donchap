@@ -1,11 +1,11 @@
 from django.urls import path
 
 from master.views import (
-    lobby_view
+    lobby_master_view
 )
 
 app_name = 'lobby'
 
 urlpatterns = [
-    path('<lobby_name>/', lobby_view, name="view"),
+    path('<lobby_name>/', lobby_master_view, name="master_view"),
 ]

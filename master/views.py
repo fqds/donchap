@@ -4,8 +4,6 @@ from master.forms import CreateLobbyForm
 from master.models import (
     Lobby,
     LobbyParameter,
-    LobbyPlayer,
-    PlayerParameter,
 )
 
 def create_lobby_view(request, *args, **kwargs):
@@ -41,7 +39,7 @@ def create_lobby_view(request, *args, **kwargs):
                                                  parameter_formula=formula,
                                                  parameter_id=raw_content.split('\r\n').index(parameter),)
                 lobby_parameter.save()
-            return redirect('lobby:view', lobby_name=lobby_name)
+            return redirect('lobby_master:view', lobby_name=lobby_name)
     else:
         form = CreateLobbyForm()
     context = {'form': form}
@@ -49,7 +47,7 @@ def create_lobby_view(request, *args, **kwargs):
 
 
 
-def lobby_view(request, *args, **kwargs):
+def lobby_master_view(request, *args, **kwargs):
     user = request.user
     if not user.is_authenticated:
         return redirect('entrance')
@@ -59,47 +57,36 @@ def lobby_view(request, *args, **kwargs):
     lobby = Lobby.objects.get(lobby_name = lobby_name)
 
 
+    parameters = []
+    if user.pk != lobby.game_master:
+        redirect('lobby:view', lobby_name=lobby_name)      
+    for i in lobby.lobby_parameters.all():
+        parameters.append([i.parameter_name])
+
+    players = []
+    for i in lobby.players.all(): players.append(i.player_id)
+
     content = []
-    if user.pk == lobby.game_master:
-        context['is_master'] = True
-        
-        for i in lobby.lobby_parameters.all():
-            content.append([i.parameter_id, 
-                            i.parameter_name])
-
-        players = []
-        for i in lobby.players.all(): players.append(i.player_id)
-        context['players'] = players
-
-    else:
-        context['is_master'] = False
-        
-        try:
-            player = lobby.players.get(player_id = user.pk)
-        except:
-            player = LobbyPlayer(lobby_identifier=lobby, player_id=user.pk)
-            player.save()
-            for i in range(len(lobby.lobby_parameters.all())):
-                parameter_value = PlayerParameter(player_identifier=player, parameter_id=i)
-                parameter_value.save()
-
-
-        for i in range(len(lobby.lobby_parameters.all())):
-            parameter = lobby.lobby_parameters.all()[i]
-            if parameter.parameter_formula: l=False
-            else: l=True
-
-            content.append([i, 
-                            parameter.parameter_name, 
-                            player.parameters.all()[i].parameter_value,
-                            l])
-
-        inventory = []
-        for i in player.items.all():
-            inventory.append([i.item_id, i.item_name, i.item_description])
-        context['inventory'] = inventory
+    for i in lobby.players.all():
+        content.append([[],[]])
+        for j in i.parameters.all():
+            content[-1][0].append(j.parameter_value)
+        for j in i.items.all():
+            content[-1][1].append([j.item_name, j.item_description, []])
+            for k in j.modifiers.all():
+                content[-1][1][-1][2].append([k.modifier_value])
+    print(content)
+    lobby.update_parameters.all().delete()
+    lobby.update_create_items.all().delete()
+    lobby.update_item_description.all().delete()
+    lobby.update_item_names.all().delete()
+    lobby.update_delete_items.all().delete()
+    lobby.update_create_item_modifier.all().delete()
+    lobby.update_item_modifier.all().delete()
 
     context['lobby_name'] = lobby_name
+    context['players'] = players
+    context['parameters'] = parameters
     context['content'] = content
     return render(request, "master/lobby.html", context)
 

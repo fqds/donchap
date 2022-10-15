@@ -35,5 +35,6 @@ urlpatterns = [
 
     path('create_lobby/', create_lobby_view, name="create_lobby"),
     path('connect_lobby/', connect_lobby_view, name="connect_lobby"),
-    path('lobby/', include('master.urls', namespace="lobby")),
+    path('lobby_master/', include('master.urls', namespace="lobby_master")),
+    path('lobby/', include('player.urls', namespace="lobby")),
 ]

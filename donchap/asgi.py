@@ -12,7 +12,8 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator
 
-from master.consumers import PlayerConsumer, MasterConsumer
+from master.consumers import MasterConsumer
+from player.consumers import PlayerConsumer
 
 
 application = ProtocolTypeRouter({

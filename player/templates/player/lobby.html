@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style type="text/css">
+    li {
+        list-style-type: none;
+    }
+    ul {
+        padding-left: 0;
+    }
+</style>
+
+
+<div class="container-main mt-1 ms-1">
+    <ul id="id_ul_main">
+        {% for parameter in content %}
+        <li class="d-flex">
+            {% if parameter.3 %}
+            <div>{{ parameter.1 }} ⁣<input type="text" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')" value="{{parameter.2}}"></input></div>
+            {% else %}
+            {{ parameter.1 }}: ⁣<div class="d-flex" id="id_character_{{parameter.0}}">{{parameter.2}}</div>
+            {% endif %}
+        </li>
+        {% endfor %}
+        <li>
+            <div class="d-flex">
+            <div class="d-flex pe-5">Инвентарь</div><a class="d-flex" onclick="create_item()">+</a>
+            </div>
+            <ul id="id_ul_inventory">
+                {% for item in inventory %}
+                <li>
+                    <input onchange="item_name_onchange({{item.0}})" value="{{item.1}}"></input>
+                    <textarea onchange="item_description_onchange({{item.0}})">{{item.2}}</textarea>
+                    <a onclick="item_delete_onclick({{item.0}})">-</a>
+                    <a onclick="create_item_modifier({{item.0}})">+</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<script type="text/javascript">
+	var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+	var ws_path = ws_scheme + '://' + window.location.host + "/lobby_asgi/{{lobby_name}}/"; 
+    var player_socket = new WebSocket(ws_path);
+
+    var ul_main = document.getElementById("id_ul_main")
+    var ul_inventory = document.getElementById("id_ul_inventory")
+
+    function input_onchange(parameter_id) {
+        var parameter_value = document.getElementById("id_character_" + parameter_id).value
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "parameter_update",
+            "parameter_id": parameter_id,
+            "parameter_value": parameter_value,
+        }))
+    }
+
+    function create_item() {
+        player_socket.send(JSON.stringify({
+        "lobby_name": '{{lobby_name}}',
+        "command": "create_item",
+        }))
+
+        ul_inventory.appendChild(document.createElement("li"))
+        var item_id = ul_inventory.children.length -1
+        ul_inventory.children[item_id].appendChild(document.createElement("input"))
+        ul_inventory.children[item_id].appendChild(document.createElement("textarea"))
+        ul_inventory.children[item_id].appendChild(document.createElement("a"))
+        ul_inventory.children[item_id].children[0].setAttribute("onchange","item_name_onchange("+item_id+")");
+        ul_inventory.children[item_id].children[1].setAttribute("onchange","item_description_onchange("+item_id+")");
+        ul_inventory.children[item_id].children[2].setAttribute("onclick","item_delete_onclick("+item_id+")");
+        ul_inventory.children[item_id].children[2].textContent = "-"
+    }
+    
+    function item_name_onchange(item_id) {
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "update_item_name",
+            "item_id": item_id,
+            "item_name": ul_inventory.children[item_id].children[0].value,
+        }))
+    }
+
+    function item_description_onchange(item_id) {
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "update_item_description",
+            "item_id": item_id,
+            "item_description": ul_inventory.children[item_id].children[1].value,
+        }))
+    }
+
+    function item_delete_onclick(item_id) {
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "delete_item",
+            "item_id": item_id,
+        }))
+
+        ul_inventory.removeChild(ul_inventory.children[item_id])
+        for (i=item_id; i<ul_inventory.children.length; i++) {
+            var item_id = ul_inventory.children.length -1
+            console.log(i, ul_inventory.children[i].children[2])
+            ul_inventory.children[i].children[0].setAttribute("onchange","item_name_onchange("+i+")");
+            ul_inventory.children[i].children[1].setAttribute("onchange","item_description_onchange("+i+")");
+            ul_inventory.children[i].children[2].setAttribute("onclick", "item_delete_onclick("+i+")");
+            console.log(i, ul_inventory.children[i].children[2])
+        }        
+    }
+
+    function create_item_modifier(item_id) {
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "create_item_modifier",
+            "item_id": item_id,
+        }))
+        
+        ul_inventory.children[item_id].appendChild(document.createElement("input"))
+        ul_inventory.children[item_id].children[ul_inventory.children[item_id].children.length - 1].setAttribute("onchange","item_modifier_onchange("+item_id+","+(ul_inventory.children[item_id].children.length-5)+")");
+    }
+
+    function item_modifier_onchange(item_id, modifier_id) {
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "update_item_modifier",
+            "item_id": item_id,
+            "modifier_id": modifier_id,
+            "modifier_value": ul_inventory.children[item_id].children[4+modifier_id].value,
+        }))
+    }
+
+</script>
+
+
+{% endblock content %}
