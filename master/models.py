@@ -1,4 +1,5 @@
 from django.db import models
+from django.forms import IntegerField
 
 
 class Lobby(models.Model):
@@ -34,13 +35,6 @@ class PlayerItem(models.Model):
     class Meta():
         ordering = ['pk']
 
-class ItemModifier(models.Model):
-    item_identifier = models.ForeignKey(PlayerItem, related_name='modifiers', on_delete=models.CASCADE)
-    modifier_stat = models.CharField(max_length=10, null=True)
-    modifier_value = models.CharField(max_length=10, null=True)
-    class Meta():
-        ordering = ['pk']
-
 class UpdateItemDescription(models.Model):
     lobby_identifier = models.ForeignKey(Lobby, related_name='update_item_description', on_delete=models.CASCADE)
     player_id = models.IntegerField()
@@ -67,3 +61,22 @@ class UpdateParameter(models.Model):
     parameter_value = models.CharField(max_length=20)
     parameter_id = models.IntegerField()
     player_id = models.IntegerField()
+
+class ItemModifier(models.Model):
+    item_identifier = models.ForeignKey(PlayerItem, related_name='modifiers', on_delete=models.CASCADE)
+    modifier_id = models.IntegerField()
+    modifier_value = models.CharField(max_length=40, null=True)
+    class Meta():
+        ordering = ['pk']
+
+class UpdateCreateItemModifier(models.Model):
+    lobby_identifier = models.ForeignKey(Lobby, related_name='update_create_item_modifier', on_delete=models.CASCADE)
+    player_id = models.IntegerField()
+    item_id = models.IntegerField()
+    
+class UpdateItemModifier(models.Model):
+    lobby_identifier = models.ForeignKey(Lobby, related_name='update_item_modifier', on_delete=models.CASCADE)
+    player_id = models.IntegerField()    
+    item_id = models.IntegerField()
+    modifier_id = models.IntegerField()
+    modifier_value = models.CharField(max_length=40, null=True)

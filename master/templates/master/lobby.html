@@ -48,7 +48,7 @@
                     <input onchange="item_name_onchange({{item.0}})" value="{{item.1}}"></input>
                     <textarea onchange="item_description_onchange({{item.0}})">{{item.2}}</textarea>
                     <a onclick="item_delete_onclick({{item.0}})">-</a>
-                    {% comment %} <a onclick="item_add_modifier({{item.0}})">-</a> {% endcomment %}
+                    <a onclick="create_item_modifier({{item.0}})">+</a>
                 </li>
                 {% endfor %}
             </ul>
@@ -145,6 +145,7 @@
             setTimeout(update_data, 1000)
         }
         if (data.receive_data) {
+            console.log(data.receive_data)
             for(i=0; i<{{players}}.length; i++) {
                 for(j=0; j<li_main[0].children[0].children.length; j++) {
                     text = data.receive_data[i][1][j]
@@ -211,13 +212,12 @@
 
         ul_inventory.appendChild(document.createElement("li"))
         var item_id = ul_inventory.children.length -1
-        var text_item_id = "("+item_id+")"
         ul_inventory.children[item_id].appendChild(document.createElement("input"))
         ul_inventory.children[item_id].appendChild(document.createElement("textarea"))
         ul_inventory.children[item_id].appendChild(document.createElement("a"))
-        ul_inventory.children[item_id].children[0].setAttribute("onchange","item_name_onchange"+text_item_id);
-        ul_inventory.children[item_id].children[1].setAttribute("onchange","item_description_onchange"+text_item_id);
-        ul_inventory.children[item_id].children[2].setAttribute("onclick","item_delete_onclick"+text_item_id);
+        ul_inventory.children[item_id].children[0].setAttribute("onchange","item_name_onchange("+item_id+")");
+        ul_inventory.children[item_id].children[1].setAttribute("onchange","item_description_onchange("+item_id+")");
+        ul_inventory.children[item_id].children[2].setAttribute("onclick","item_delete_onclick("+item_id+")");
         ul_inventory.children[item_id].children[2].textContent = "-"
     }
     
@@ -246,28 +246,37 @@
             "item_id": item_id,
         }))
 
-        console.log(ul_inventory)
         ul_inventory.removeChild(ul_inventory.children[item_id])
         for (i=item_id; i<ul_inventory.children.length; i++) {
             var item_id = ul_inventory.children.length -1
-            var text_item_id = "("+i+")"
-            console.log(text_item_id) 
             console.log(i, ul_inventory.children[i].children[2])
-            ul_inventory.children[i].children[0].setAttribute("onchange","item_name_onchange"+text_item_id);
-            ul_inventory.children[i].children[1].setAttribute("onchange","item_description_onchange"+text_item_id);
-            ul_inventory.children[i].children[2].setAttribute("onclick", "item_delete_onclick"+text_item_id);
+            ul_inventory.children[i].children[0].setAttribute("onchange","item_name_onchange("+i+")");
+            ul_inventory.children[i].children[1].setAttribute("onchange","item_description_onchange("+i+")");
+            ul_inventory.children[i].children[2].setAttribute("onclick", "item_delete_onclick("+i+")");
             console.log(i, ul_inventory.children[i].children[2])
         }        
     }
 
-    {% comment %} function item_add_modifier(item_id) {
+    function create_item_modifier(item_id) {
         player_socket.send(JSON.stringify({
             "lobby_name": '{{lobby_name}}',
-            "command": "add_modifier_item",
+            "command": "create_item_modifier",
             "item_id": item_id,
         }))
         
-    } {% endcomment %}
+        ul_inventory.children[item_id].appendChild(document.createElement("input"))
+        ul_inventory.children[item_id].children[ul_inventory.children[item_id].children.length - 1].setAttribute("onchange","item_modifier_onchange("+item_id+","+(ul_inventory.children[item_id].children.length-5)+")");
+    }
+
+    function item_modifier_onchange(item_id, modifier_id) {
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "update_item_modifier",
+            "item_id": item_id,
+            "modifier_id": modifier_id,
+            "modifier_value": ul_inventory.children[item_id].children[4+modifier_id].value,
+        }))
+    }
     {% endif %}
 
 </script>
