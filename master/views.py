@@ -83,6 +83,7 @@ def lobby_master_view(request, *args, **kwargs):
     lobby.update_delete_items.all().delete()
     lobby.update_create_item_modifier.all().delete()
     lobby.update_item_modifier.all().delete()
+    lobby.update_delete_item_modifier.all().delete()
 
     context['lobby_name'] = lobby_name
     context['players'] = players

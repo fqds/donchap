@@ -25,7 +25,7 @@ class MasterConsumer(AsyncJsonWebsocketConsumer):
 @database_sync_to_async
 def get_update(lobby_name):
     lobby = Lobby.objects.get(lobby_name = lobby_name)
-    data = [[],[],[],[],[],[],[]]
+    data = [[],[],[],[],[],[],[],[]]
     if lobby.update_parameters.all():
         for i in lobby.update_parameters.all():
             data[0].append([i.player_id, i.parameter_id, i.parameter_value])
@@ -60,5 +60,10 @@ def get_update(lobby_name):
         for i in lobby.update_item_modifier.all():
             data[6].append([i.player_id, i.item_id, i.modifier_id, i.modifier_value])
     lobby.update_item_modifier.all().delete()
+
+    if lobby.update_delete_item_modifier.all():
+        for i in lobby.update_delete_item_modifier.all():
+            data[7].append([i.player_id, i.item_id, i.modifier_id])
+    lobby.update_delete_item_modifier.all().delete()
     return data
 

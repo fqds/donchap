@@ -139,3 +139,5 @@ def delete_item_modifier(lobby_name, user_id, item_id, modifier_id):
     for i in item.modifiers.filter(modifier_id__gt=modifier_id):
         i.modifier_id -= 1
         i.save()
+    update = UpdateDeleteItemModifier(lobby_identifier=lobby, player_id=user_id, item_id=item_id, modifier_id=modifier_id)
+    update.save()
