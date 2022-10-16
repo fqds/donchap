@@ -7,5 +7,5 @@ from master.views import (
 app_name = 'lobby'
 
 urlpatterns = [
-    path('<lobby_name>/', lobby_master_view, name="master_view"),
+    path('<lobby_name>/', lobby_master_view, name="view"),
 ]

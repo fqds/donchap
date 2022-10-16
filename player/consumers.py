@@ -14,6 +14,7 @@ from master.models import (
     UpdateDeleteItem,
     UpdateCreateItemModifier,
     UpdateItemModifier,
+    UpdateDeleteItemModifier,
 )
 
 
@@ -36,6 +37,8 @@ class PlayerConsumer(AsyncJsonWebsocketConsumer):
                 await create_item_modifier(content.get("item_id"), content.get("lobby_name"), self.scope["user"].pk)
             if command == "update_item_modifier":
                 await update_item_modifier(content.get("lobby_name"), self.scope["user"].pk, content.get("item_id"), content.get("modifier_id"), content.get("modifier_value"))
+            if command == "delete_item_modifier":
+                await delete_item_modifier(content.get("lobby_name"), self.scope["user"].pk, content.get("item_id"), content.get("modifier_id"))
         except Exception as e:
             print(e)
 
@@ -126,3 +129,13 @@ def update_item_modifier(lobby_name, user_id, item_id, modifier_id, modifier_val
     modifier.save()
     update = UpdateItemModifier(lobby_identifier=lobby, player_id=user_id, item_id=item_id, modifier_id=modifier_id, modifier_value=modifier_value)
     update.save()
+
+@database_sync_to_async
+def delete_item_modifier(lobby_name, user_id, item_id, modifier_id):
+    lobby = Lobby.objects.get(lobby_name=lobby_name)
+    player = lobby.players.get(player_id=user_id)
+    item = player.items.get(item_id=item_id)
+    item.modifiers.get(modifier_id=modifier_id).delete()
+    for i in item.modifiers.filter(modifier_id__gt=modifier_id):
+        i.modifier_id -= 1
+        i.save()

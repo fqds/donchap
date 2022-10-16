@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 from django.forms import IntegerField
 
@@ -65,7 +66,7 @@ class UpdateParameter(models.Model):
 class ItemModifier(models.Model):
     item_identifier = models.ForeignKey(PlayerItem, related_name='modifiers', on_delete=models.CASCADE)
     modifier_id = models.IntegerField()
-    modifier_value = models.CharField(max_length=40, null=True)
+    modifier_value = models.CharField(max_length=40, default="")
     class Meta():
         ordering = ['pk']
 
@@ -79,4 +80,11 @@ class UpdateItemModifier(models.Model):
     player_id = models.IntegerField()    
     item_id = models.IntegerField()
     modifier_id = models.IntegerField()
-    modifier_value = models.CharField(max_length=40, null=True)
+    modifier_value = models.CharField(max_length=40)
+
+class UpdateDeleteItemModifier(models.Model):
+    lobby_identifier = models.ForeignKey(Lobby, related_name='update_delete_item_modifier', on_delete=models.CASCADE)
+    player_id = models.IntegerField()
+    item_id = models.IntegerField()
+    modifier_id = models.IntegerField()
+    

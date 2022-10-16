@@ -59,7 +59,7 @@ def lobby_master_view(request, *args, **kwargs):
 
     parameters = []
     if user.pk != lobby.game_master:
-        redirect('lobby:view', lobby_name=lobby_name)      
+        redirect('lobby:view', lobby_name=lobby_name)
     for i in lobby.lobby_parameters.all():
         parameters.append([i.parameter_name])
 

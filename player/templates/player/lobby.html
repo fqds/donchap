@@ -13,32 +13,42 @@
 
 
 <div class="container-main mt-1 ms-1">
-    <ul id="id_ul_main">
+    <ul id="ul_parameters">
         {% for parameter in content %}
         <li class="d-flex">
             {% if parameter.3 %}
-            <div>{{ parameter.1 }} ⁣<input type="text" id="id_character_{{parameter.0}}" onchange="input_onchange('{{parameter.0}}')" value="{{parameter.2}}"></input></div>
+            {{ parameter.1 }}: ⁣<input onchange="parameter_onchange('{{ parameter.0 }}')" value="{{ parameter.2 }}"></input>
             {% else %}
-            {{ parameter.1 }}: ⁣<div class="d-flex" id="id_character_{{parameter.0}}">{{parameter.2}}</div>
+            {{ parameter.1 }}: ⁣<div>{{ parameter.2 }}</div>
             {% endif %}
         </li>
         {% endfor %}
-        <li>
-            <div class="d-flex">
-            <div class="d-flex pe-5">Инвентарь</div><a class="d-flex" onclick="create_item()">+</a>
-            </div>
-            <ul id="id_ul_inventory">
+    </ul>
+    <div>
+        <div class="d-flex">
+            <div class="d-flex pe-5">Инвентарь</div>
+            <a class="d-flex" onclick="create_item()">+</a>
+        </div>
+            <ul id="ul_inventory">
                 {% for item in inventory %}
                 <li>
                     <input onchange="item_name_onchange({{item.0}})" value="{{item.1}}"></input>
                     <textarea onchange="item_description_onchange({{item.0}})">{{item.2}}</textarea>
                     <a onclick="item_delete_onclick({{item.0}})">-</a>
-                    <a onclick="create_item_modifier({{item.0}})">+</a>
+                    <a onclick="create_item_modifier({{item.0}})">add modifier</a>
+                    <ul>
+                        {% for modifier in item.3 %}
+                        <li>
+                            <input onchange="item_modifier_onchange({{item.0}}, {{modifier.0}})" value="{{modifier.1}}" />
+                            <a onclick="delete_item_modifier({{item.0}}, {{modifier.0}})">-</a>                        
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </li>
                 {% endfor %}
             </ul>
-        </li>
-    </ul>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -46,16 +56,15 @@
 	var ws_path = ws_scheme + '://' + window.location.host + "/lobby_asgi/{{lobby_name}}/"; 
     var player_socket = new WebSocket(ws_path);
 
-    var ul_main = document.getElementById("id_ul_main")
-    var ul_inventory = document.getElementById("id_ul_inventory")
+    var ul_parameters = document.getElementById("ul_parameters")
+    var ul_inventory = document.getElementById("ul_inventory")
 
-    function input_onchange(parameter_id) {
-        var parameter_value = document.getElementById("id_character_" + parameter_id).value
+    function parameter_onchange(parameter_id) {
         player_socket.send(JSON.stringify({
             "lobby_name": '{{lobby_name}}',
             "command": "parameter_update",
             "parameter_id": parameter_id,
-            "parameter_value": parameter_value,
+            "parameter_value": ul_parameters.children[parameter_id].children[0].value,
         }))
     }
 
@@ -65,15 +74,15 @@
         "command": "create_item",
         }))
 
-        ul_inventory.appendChild(document.createElement("li"))
-        var item_id = ul_inventory.children.length -1
-        ul_inventory.children[item_id].appendChild(document.createElement("input"))
-        ul_inventory.children[item_id].appendChild(document.createElement("textarea"))
-        ul_inventory.children[item_id].appendChild(document.createElement("a"))
-        ul_inventory.children[item_id].children[0].setAttribute("onchange","item_name_onchange("+item_id+")");
-        ul_inventory.children[item_id].children[1].setAttribute("onchange","item_description_onchange("+item_id+")");
-        ul_inventory.children[item_id].children[2].setAttribute("onclick","item_delete_onclick("+item_id+")");
+        item_id = ul_inventory.children.length
+        li = ul_inventory.appendChild(document.createElement("li"))
+        li.appendChild(document.createElement("input")).setAttribute("onchange","item_name_onchange("+item_id+")")
+        li.appendChild(document.createElement("textarea")).setAttribute("onchange","item_description_onchange("+item_id+")")
+        li.appendChild(document.createElement("a")).setAttribute("onclick","item_delete_onclick("+item_id+")")
+        li.appendChild(document.createElement("a")).setAttribute("onclick","create_item_modifier("+item_id+")")
+        li.appendChild(document.createElement("ul"))
         ul_inventory.children[item_id].children[2].textContent = "-"
+        ul_inventory.children[item_id].children[3].textContent = "add modifier"
     }
     
     function item_name_onchange(item_id) {
@@ -83,6 +92,7 @@
             "item_id": item_id,
             "item_name": ul_inventory.children[item_id].children[0].value,
         }))
+        console.log("В предмете", item_id, "был изменено название на", ul_inventory.children[item_id].children[0].value,)
     }
 
     function item_description_onchange(item_id) {
@@ -92,6 +102,7 @@
             "item_id": item_id,
             "item_description": ul_inventory.children[item_id].children[1].value,
         }))
+        console.log("В предмете", item_id, "был изменено описание на", ul_inventory.children[item_id].children[1].value,)
     }
 
     function item_delete_onclick(item_id) {
@@ -100,15 +111,15 @@
             "command": "delete_item",
             "item_id": item_id,
         }))
-
+        console.log("удален предмет", item_id)
         ul_inventory.removeChild(ul_inventory.children[item_id])
         for (i=item_id; i<ul_inventory.children.length; i++) {
-            var item_id = ul_inventory.children.length -1
-            console.log(i, ul_inventory.children[i].children[2])
             ul_inventory.children[i].children[0].setAttribute("onchange","item_name_onchange("+i+")");
             ul_inventory.children[i].children[1].setAttribute("onchange","item_description_onchange("+i+")");
             ul_inventory.children[i].children[2].setAttribute("onclick", "item_delete_onclick("+i+")");
-            console.log(i, ul_inventory.children[i].children[2])
+            ul_inventory.children[i].children[3].setAttribute("onclick", "create_item_modifier("+i+")");
+            for (modifier_id=0; modifier_id<ul_inventory.children[i].children[4].children.length; modifier_id++) {update_item_modifier(i, modifier_id);}
+            console.log("предмет", i+1, "стал предметом", i)
         }        
     }
 
@@ -119,8 +130,12 @@
             "item_id": item_id,
         }))
         
-        ul_inventory.children[item_id].appendChild(document.createElement("input"))
-        ul_inventory.children[item_id].children[ul_inventory.children[item_id].children.length - 1].setAttribute("onchange","item_modifier_onchange("+item_id+","+(ul_inventory.children[item_id].children.length-5)+")");
+        li = ul_inventory.children[item_id].children[4].appendChild(document.createElement("li"))
+        li.appendChild(document.createElement("input")).
+           setAttribute("onchange","item_modifier_onchange("+item_id+","+(ul_inventory.children[item_id].children[4].children.length-1)+")")
+        li.appendChild(document.createElement("a")).
+           setAttribute("onclick","delete_item_modifier("+item_id+","+(ul_inventory.children[item_id].children[4].children.length-1)+")")
+        li.children[1].textContent = '-'
     }
 
     function item_modifier_onchange(item_id, modifier_id) {
@@ -129,10 +144,30 @@
             "command": "update_item_modifier",
             "item_id": item_id,
             "modifier_id": modifier_id,
-            "modifier_value": ul_inventory.children[item_id].children[4+modifier_id].value,
+            "modifier_value": ul_inventory.children[item_id].children[4].children[modifier_id].children[0].value,
+        }))
+        console.log("В предмете", item_id, "был изменен модификатор", modifier_id, "на", ul_inventory.children[item_id].children[4].children[modifier_id].children[0].value)
+    }
+
+    function delete_item_modifier(item_id, modifier_id) {
+        ul_inventory.children[item_id].children[4].removeChild(ul_inventory.children[item_id].children[4].children[modifier_id])
+        console.log("модификатор", modifier_id, "предмета", item_id, "удален")
+        for (i=modifier_id; i<ul_inventory.children[item_id].children[4].children.length; i++) {
+            update_item_modifier(item_id, i)
+            console.log("модификатор", i+1, "предмета", item_id, "стал модификатором", i)
+        }
+        player_socket.send(JSON.stringify({
+            "lobby_name": '{{lobby_name}}',
+            "command": "delete_item_modifier",
+            "item_id": item_id,
+            "modifier_id": modifier_id,
         }))
     }
 
+    function update_item_modifier(item_id, modifier_id) {
+        ul_inventory.children[item_id].children[4].children[modifier_id].children[0].setAttribute("onchange","item_modifier_onchange("+item_id+","+modifier_id+")")
+        ul_inventory.children[item_id].children[4].children[modifier_id].children[1].setAttribute("onclick","delete_item_modifier("+item_id+","+modifier_id+")")
+    }
 </script>
 
 

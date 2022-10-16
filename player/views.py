@@ -39,8 +39,10 @@ def lobby_view(request, *args, **kwargs):
                         l])
 
     inventory = []
-    for i in player.items.all():
-        inventory.append([i.item_id, i.item_name, i.item_description])
+    for item in player.items.all():
+        inventory.append([item.item_id, item.item_name, item.item_description,[]])
+        for modifier in item.modifiers.all():
+            inventory[-1][3].append([modifier.modifier_id, modifier.modifier_value])
     
     context['inventory'] = inventory
     context['lobby_name'] = lobby_name
