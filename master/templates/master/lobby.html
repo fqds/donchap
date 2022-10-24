@@ -9,12 +9,54 @@
     ul {
         padding-left: 0;
     }
+    .container-main {
+        margin: 30px;
+    }
+    .parameter-text {
+        font-weight: bold;
+        font-size: 18px;
+    }
+    .content-container {
+        display: flex;
+        flex-direction: column;
+        border-radius: 10px;
+        background-color: #fbfbfb;
+        margin-right: 30px;
+        margin-bottom: 15px;
+        padding: 20px;
+    }
+    .inventory {
+        align-items: center;
+        text-align: center; 
+        font-weight: bold;
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+    .item-name {
+        font-size: 22px;
+    }
+    .item-description {
+        font-size: 18px;
+    }
+    .item-modifier {
+        font-size: 14px;
+        margin-bottom: 2px;
+    }
+    .item {
+        border: 1px solid black;
+        padding: 5px;
+        background-color: #DEE3E9;
+        border-radius: 10px;
+    }
+    .item:not(:last-child) {
+        margin-bottom: 20px;
+    }
 </style>
 
-<div class="container-main mt-1 ms-1">
+<div class="container-main">
     <ul id="ul_master" style="display: flex;">
-        <li style="padding-right: 20px;">
-            <ul>
+        <li>
+            <ul  class="content-container parameter-text">
                 {% for parameter in parameters %}
                 <li>
                     {{ parameter.0 }}
@@ -23,21 +65,20 @@
             </ul>
         </li>
         {% for player in content %}
-        <li>
-            <ul>
+        <li style="max-width: 400px;">
+            <ul  class="content-container parameter-text">
                 {% for parameter in player.0 %}
                 <li>{{parameter}}⁣</li>
                 {% endfor %}
             </ul>
-            <ul>
-                Инвентарь:
+            <ul class="content-container">
                 {% for item in player.1 %}
-                <li>
-                    <div>{{item.0}}⁣</div>
-                    <div>{{item.1}}⁣</div>
+                <li class="item">
+                    <div class="item-name">{{item.0}}⁣</div>
+                    <div class="item-description">{{item.1}}⁣</div>
                     <ul>
                         {% for modifier in item.2 %}
-                        <li>{{ modifier }}</li>
+                        <li class="item-modifier">{{ modifier }}</li>
                         {% endfor %}
                     </ul>
                 </li>
@@ -87,9 +128,9 @@
             for (let i=0; i<content[1].length; i++) {
                 let player_card = ul_control.children[dict.indexOf(content[1][i][0]) +1]
                 let item_id = player_card.children[1].children.length
-                player_card.children[1].appendChild(document.createElement("li"))
-                player_card.children[1].children[item_id].appendChild(document.createElement("div"))
-                player_card.children[1].children[item_id].appendChild(document.createElement("div"))
+                player_card.children[1].appendChild(document.createElement("li")).classList.add("item")
+                player_card.children[1].children[item_id].appendChild(document.createElement("div")).classList.add("item-name")
+                player_card.children[1].children[item_id].appendChild(document.createElement("div")).classList.add("item-description")
                 player_card.children[1].children[item_id].appendChild(document.createElement("ul"))
                 player_card.children[1].children[item_id].children[0].textContent = "⁣"
                 player_card.children[1].children[item_id].children[1].textContent = "⁣"
@@ -111,8 +152,8 @@
             }
             for (let i=0; i<content[5].length; i++) {
                 let player_card = ul_control.children[dict.indexOf(content[5][i][0]) +1]
-                let modifier = player_card.children[1].children[content[5][i][1]].children[2].appendChild(document.createElement("li"))
-                modifier.textContent = "⁣"
+                player_card.children[1].children[content[5][i][1]].children[2].appendChild(document.createElement("li")).classList.add("item-modifier")
+                player_card.children[1].children[content[5][i][1]].children[2].lastElementChild.textContent = "⁣"
             }
             for (let i=0; i<content[6].length; i++) {
                 let player_card = ul_control.children[dict.indexOf(content[6][i][0]) +1]
