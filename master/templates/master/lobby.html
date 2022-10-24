@@ -35,6 +35,11 @@
                 <li>
                     <div>{{item.0}}⁣</div>
                     <div>{{item.1}}⁣</div>
+                    <ul>
+                        {% for modifier in item.2 %}
+                        <li>{{ modifier }}</li>
+                        {% endfor %}
+                    </ul>
                 </li>
                 {% endfor %}
             </ul>
@@ -75,33 +80,47 @@
         if (data.update_data) {
             content = data.update_data
             console.log(content)
-            for (i=0; i<content[0].length; i++) {
-                player_card = ul_control.children[dict.indexOf(content[0][i][0]) +1]
+            for (let i=0; i<content[0].length; i++) {
+                let player_card = ul_control.children[dict.indexOf(content[0][i][0]) +1]
                 player_card.children[0].children[content[0][i][1]].textContent = content[0][i][2]
             }
-            for (i=0; i<content[1].length; i++) {
-                player_card = ul_control.children[dict.indexOf(content[1][i][0]) +1]
-                item_id = player_card.children[1].children.length
+            for (let i=0; i<content[1].length; i++) {
+                let player_card = ul_control.children[dict.indexOf(content[1][i][0]) +1]
+                let item_id = player_card.children[1].children.length
                 player_card.children[1].appendChild(document.createElement("li"))
                 player_card.children[1].children[item_id].appendChild(document.createElement("div"))
                 player_card.children[1].children[item_id].appendChild(document.createElement("div"))
+                player_card.children[1].children[item_id].appendChild(document.createElement("ul"))
                 player_card.children[1].children[item_id].children[0].textContent = "⁣"
                 player_card.children[1].children[item_id].children[1].textContent = "⁣"
             }
-            for (i=0; i<content[2].length; i++) {
-                player_card = ul_control.children[dict.indexOf(content[2][i][0]) +1]
-                item_id = content[2][i][1]
+            for (let i=0; i<content[2].length; i++) {
+                let player_card = ul_control.children[dict.indexOf(content[2][i][0]) +1]
+                let item_id = content[2][i][1]
                 player_card.children[1].children[item_id].children[0].textContent = content[2][i][2]+"⁣"
             }
-            for (i=0; i<content[3].length; i++) {
-                player_card = ul_control.children[dict.indexOf(content[3][i][0]) +1]
-                item_id = content[3][i][1]
+            for (let i=0; i<content[3].length; i++) {
+                let player_card = ul_control.children[dict.indexOf(content[3][i][0]) +1]
+                let item_id = content[3][i][1]
                 player_card.children[1].children[item_id].children[1].textContent = content[3][i][2]+"⁣"
             }
-            for (i=0; i<content[4].length; i++) {
-                player_card = ul_control.children[dict.indexOf(content[4][i][0]) +1]
+            for (let i=0; i<content[4].length; i++) {
+                let player_card = ul_control.children[dict.indexOf(content[4][i][0]) +1]
                 player_card.children[1].removeChild(player_card.children[1].children[content[4][i][1]])
                 
+            }
+            for (let i=0; i<content[5].length; i++) {
+                let player_card = ul_control.children[dict.indexOf(content[5][i][0]) +1]
+                let modifier = player_card.children[1].children[content[5][i][1]].children[2].appendChild(document.createElement("li"))
+                modifier.textContent = "⁣"
+            }
+            for (let i=0; i<content[6].length; i++) {
+                let player_card = ul_control.children[dict.indexOf(content[6][i][0]) +1]
+                player_card.children[1].children[content[6][i][1]].children[2].children[content[6][i][2]].textContent = content[6][i][3] + "⁣"
+            }
+            for (let i=0; i<content[7].length; i++) {
+                let player_card = ul_control.children[dict.indexOf(content[7][i][0]) +1]
+                player_card.children[1].children[content[7][i][1]].children[2].removeChild(player_card.children[1].children[content[7][i][1]].children[2].children[content[7][i][2]])
             }
             setTimeout(update_data, 1000)
         }
