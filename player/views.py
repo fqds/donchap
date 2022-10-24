@@ -34,9 +34,9 @@ def lobby_view(request, *args, **kwargs):
         else: l=True
 
         content.append([i, 
-                        parameter.parameter_name, 
-                        player.parameters.all()[i].parameter_value,
-                        l])
+                    parameter.parameter_name, 
+                    player.parameters.all()[i].parameter_value,
+                    l])
 
     inventory = []
     for item in player.items.all():

@@ -70,7 +70,8 @@ def lobby_master_view(request, *args, **kwargs):
     for i in lobby.players.all():
         content.append([[],[]])
         for j in i.parameters.all():
-            content[-1][0].append(j.parameter_value)
+            try: content[-1][0].append(int(j.parameter_value) + j.parameter_modifier)
+            except: content[-1][0].append(j.parameter_value)
         for j in i.items.all():
             content[-1][1].append([j.item_name, j.item_description, []])
             for k in j.modifiers.all():

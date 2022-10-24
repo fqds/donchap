@@ -24,6 +24,7 @@ class LobbyPlayer(models.Model):
 class PlayerParameter(models.Model):
     player_identifier = models.ForeignKey(LobbyPlayer, related_name='parameters', on_delete=models.CASCADE)
     parameter_value = models.CharField(max_length=20, default="")
+    parameter_modifier = models.IntegerField(default=0)
     parameter_id = models.IntegerField()
     class Meta():
         ordering = ['pk']

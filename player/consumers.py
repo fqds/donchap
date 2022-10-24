@@ -32,7 +32,8 @@ class PlayerConsumer(AsyncJsonWebsocketConsumer):
             if command == "update_item_description":
                 await update_item_description(content.get("item_id"), content.get("item_description"), content.get("lobby_name"), self.scope["user"].pk)
             if command == "delete_item":
-                await delete_item(content.get("item_id"), content.get("lobby_name"), self.scope["user"].pk)
+                data = await delete_item(content.get("item_id"), content.get("lobby_name"), self.scope["user"].pk)
+                for i in data: await parameter_update(i[0], i[1], content.get("lobby_name"), self.scope["user"].pk )
             if command == "create_item_modifier":
                 await create_item_modifier(content.get("item_id"), content.get("lobby_name"), self.scope["user"].pk)
             if command == "update_item_modifier":
@@ -41,7 +42,7 @@ class PlayerConsumer(AsyncJsonWebsocketConsumer):
                 if data[1]: await parameter_update(data[1][0], data[1][1], content.get("lobby_name"), self.scope["user"].pk )
             if command == "delete_item_modifier":
                 data = await delete_item_modifier(content.get("lobby_name"), self.scope["user"].pk, content.get("item_id"), content.get("modifier_id"))
-                if data[0]: await parameter_update(data[0][0], data[0][1], content.get("lobby_name"), self.scope["user"].pk )
+                if data: await parameter_update(data[0], data[1], content.get("lobby_name"), self.scope["user"].pk )
         except Exception as e:
             print(e)
 
@@ -52,9 +53,10 @@ def parameter_update(parameter_id, parameter_value, lobby_name, user_id):
     parameter = player.parameters.get(parameter_id = parameter_id)
     parameter.parameter_value = parameter_value
     parameter.save()
-    update = UpdateParameter(lobby_identifier=lobby, parameter_value=parameter_value, player_id=user_id, parameter_id=parameter.parameter_id)
+    try: parameter.parameter_value = int(parameter_value) + parameter.parameter_modifier
+    except: parameter.parameter_value = parameter_value
+    update = UpdateParameter(lobby_identifier=lobby, parameter_value=parameter.parameter_value, player_id=user_id, parameter_id=parameter.parameter_id)
     update.save()
-    data = []
     if lobby.lobby_parameters.get(parameter_id = parameter_id).parameter_stat:
         for i in lobby.lobby_parameters.exclude(parameter_formula = ''):
             if i.parameter_formula.find(lobby.lobby_parameters.all()[parameter_id].parameter_stat) != -1:
@@ -63,15 +65,13 @@ def parameter_update(parameter_id, parameter_value, lobby_name, user_id):
                     formula = i.parameter_formula
                     for j in lobby.lobby_parameters.exclude(parameter_stat = ''):
                         if formula.count(j.parameter_stat) != 0:
-                            formula = formula.replace(j.parameter_stat, player.parameters.get(parameter_id=j.parameter_id).parameter_value)
+                            formula = formula.replace(j.parameter_stat, str(int(player.parameters.get(parameter_id=j.parameter_id).parameter_value) + int(player.parameters.get(parameter_id=j.parameter_id).parameter_modifier)))
                     parameter.parameter_value = recount(formula) 
                     update = UpdateParameter(lobby_identifier=lobby, parameter_value=parameter.parameter_value, player_id=user_id, parameter_id=i.parameter_id)
                     parameter.save()
                     update.save()
-                    data.append([i.parameter_id, parameter.parameter_value])
                 except:
                     pass
-    return [parameter.id, parameter.parameter_value]
 @database_sync_to_async
 def create_item(lobby_name, user_id):
     lobby = Lobby.objects.get(lobby_name=lobby_name)
@@ -105,19 +105,34 @@ def update_item_description(item_id, item_description, lobby_name, user_id):
 def delete_item(item_id, lobby_name, user_id):
     lobby = Lobby.objects.get(lobby_name=lobby_name)
     player = lobby.players.get(player_id=user_id)
+    parameter_updates = []
+    for i in player.items.all():
+        for modifier in i.modifiers.all():
+
+            try:
+                if modifier.modifier_value[0] == "+":
+                    modifier_value_before = modifier.modifier_value.split()
+                    parameter_id = lobby.lobby_parameters.get(parameter_stat = modifier_value_before[1]).parameter_id
+                    parameter = player.parameters.get(parameter_id = parameter_id)
+                    parameter.parameter_modifier = parameter.parameter_modifier - int(modifier_value_before[2])
+                    parameter.save()
+                    parameter_updates.append([parameter_id, parameter.parameter_value])
+            except: pass
+            modifier.delete()
     player.items.get(item_id=item_id).delete()
     for i in player.items.filter(item_id__gt=item_id):
         i.item_id = i.item_id - 1
         i.save()
     update = UpdateDeleteItem(lobby_identifier=lobby, player_id=user_id, item_id=item_id)
     update.save()
+    return parameter_updates
 
 @database_sync_to_async
 def create_item_modifier(item_id, lobby_name, user_id):
     lobby = Lobby.objects.get(lobby_name=lobby_name)
     player = lobby.players.get(player_id=user_id)
     item = player.items.get(item_id=item_id)
-    modifier = ItemModifier(item_identifier=item, modifier_id=len(item.modifiers.all()))
+    modifier = ItemModifier(item_identifier=item, modifier_id=len(item.modifiers.all()), modifier_value = "")
     modifier.save()
     update = UpdateCreateItemModifier(lobby_identifier=lobby, player_id=user_id, item_id=item_id)
     update.save()
@@ -128,22 +143,29 @@ def update_item_modifier(lobby_name, user_id, item_id, modifier_id, modifier_val
     player = lobby.players.get(player_id=user_id)
     item = player.items.get(item_id=item_id)
     modifier = item.modifiers.get(modifier_id=modifier_id)
-    parameter_update_before = return_modifier_parameter_update(modifier, lobby, player, isNew=False)
-    parameter_update_after = return_modifier_parameter_update(modifier, lobby, player, isNew=True)
-    try: 
-        if modifier_value[0] == "+":
-            modifier_value_new = modifier_value.split()
-            parameter_id = lobby.lobby_parameters.get(parameter_stat = modifier_value_new[1]).parameter_id
+    try:
+        if modifier.modifier_value[0] == "+":
+            modifier_value_before = modifier.modifier_value.split()
+            parameter_id = lobby.lobby_parameters.get(parameter_stat = modifier_value_before[1]).parameter_id
             parameter = player.parameters.get(parameter_id = parameter_id)
-            parameter.parameter_value = int(parameter.parameter_value) + int(modifier_value_new[2])
+            parameter.parameter_modifier = parameter.parameter_modifier - int(modifier_value_before[2])
             parameter.save()
-            parameter_update_after= [parameter_id, parameter.parameter_value]
-    except: pass
+            parameter_update_before = [parameter_id, parameter.parameter_value]
+    except: parameter_update_before = False
+    try:
+        if modifier_value[0] == "+":
+            modifier_value_after = modifier_value.split() 
+            parameter_id = lobby.lobby_parameters.get(parameter_stat = modifier_value_after[1]).parameter_id
+            parameter = player.parameters.get(parameter_id = parameter_id)
+            parameter.parameter_modifier = parameter.parameter_modifier + int(modifier_value_after[2])
+            parameter.save()
+            parameter_update_after = [parameter_id, parameter.parameter_value]
+    except: parameter_update_after = False
     modifier.modifier_value = modifier_value
     modifier.save()
     update = UpdateItemModifier(lobby_identifier=lobby, player_id=user_id, item_id=item_id, modifier_id=modifier_id, modifier_value=modifier_value)
     update.save()
-    return [parameter_update_before, parameter_update_after]
+    return [parameter_update_before, parameter_update_after, parameter.parameter_modifier]
 
 @database_sync_to_async
 def delete_item_modifier(lobby_name, user_id, item_id, modifier_id):
@@ -151,24 +173,19 @@ def delete_item_modifier(lobby_name, user_id, item_id, modifier_id):
     player = lobby.players.get(player_id=user_id)
     item = player.items.get(item_id=item_id)
     modifier = item.modifiers.get(modifier_id=modifier_id)
-    parameter_update_before = return_modifier_parameter_update(modifier, lobby, player, isNew=False)
-    item.modifiers.get(modifier_id=modifier_id).delete()
+    try:
+        if modifier.modifier_value[0] == "+":
+            modifier_value_before = modifier.modifier_value.split()
+            parameter_id = lobby.lobby_parameters.get(parameter_stat = modifier_value_before[1]).parameter_id
+            parameter = player.parameters.get(parameter_id = parameter_id)
+            parameter.parameter_modifier = parameter.parameter_modifier - int(modifier_value_before[2])
+            parameter.save()
+            parameter_update_before = [parameter_id, parameter.parameter_value]
+    except: parameter_update_before = False
+    modifier.delete()
     for i in item.modifiers.filter(modifier_id__gt=modifier_id):
         i.modifier_id -= 1
         i.save()
     update = UpdateDeleteItemModifier(lobby_identifier=lobby, player_id=user_id, item_id=item_id, modifier_id=modifier_id)
     update.save()
-    return [parameter_update_before]
-
-def return_modifier_parameter_update(modifier, lobby, player, isNew):
-    try:
-        if modifier.modifier_value[0] == "+":
-            if isNew: modifier_value = modifier_value.split() 
-            else: modifier_value = modifier.modifier_value.split()
-            parameter_id = lobby.lobby_parameters.get(parameter_stat = modifier_value[1]).parameter_id
-            parameter = player.parameters.get(parameter_id = parameter_id)
-            if isNew: parameter.parameter_value = int(parameter.parameter_value) + int(modifier_value[2])
-            else: parameter.parameter_value = int(parameter.parameter_value) - int(modifier_value[2])
-            parameter.save()
-            return [parameter_id, parameter.parameter_value]
-    except: return False
+    return parameter_update_before
