@@ -9,38 +9,121 @@
     ul {
         padding-left: 0;
     }
+    .container-main {
+        margin: 30px;
+    }
+    .content-container {
+        min-width: 350px;
+        max-width: 500px;
+    }
+.stat {
+    position: relative;
+    padding-right: 8em; /* чтобы элемент не был поверх содержимого родителя */
+  }
+  .stat:not(:last-child) {
+    margin-bottom: 5px;
+}
+  .stat input {
+    position: absolute; 
+    top: 0; 
+    right: 0;
+  }
+  .item-delete {
+    position: absolute; 
+    top: 13px; 
+    right: 14px;
+  }
+  .item-modifier-add {
+    position: absolute; 
+    top: 58px; 
+    right: 14px;
+  }
+  .item {
+    position: relative;
+      border: 1px solid black;
+      padding: 5px 5px 0 ;
+      background-color: #DEE3E9;
+      border-radius: 10px;
+  }
+  .item:not(:last-child) {
+      margin-bottom: 5px;
+  }
+  .item-name {
+      font-size: 22px;
+      width: 100%;
+      margin-bottom: 5px;
+  }
+  .item-description {
+      font-size: 18px;
+      width: 100%;
+      margin-bottom: 0px;
+  }
+  .item-modifier {
+      font-size: 14px;
+      margin-bottom: 5px;
+      padding-right: 5px;
+  }
+  .item-modifier input {
+    width: 100%;
+    margin-right: 5px;
+  }
+  .border {
+    border-radius: 5px;
+    border-width: 1px;
+  }
+  .text-bold {
+      font-weight: bold;
+      font-size: 16px;
+  }
 </style>
 
 
-<div class="container-main mt-1 ms-1">
-    <ul id="ul_parameters">
+<div class="container-main mt-1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <ul class="content-container line-height-1.5 text-bold" id="ul_parameters">
         {% for parameter in content %}
-        <li class="d-flex">
+        <li class="d-flex stat">
             {% if parameter.3 %}
-            {{ parameter.1 }}: ⁣<input onchange="parameter_onchange('{{ parameter.0 }}')" value="{{ parameter.2 }}"></input>
+            {{ parameter.1 }}: ⁣<input class="text-bold" onchange="parameter_onchange('{{ parameter.0 }}')" value="{{ parameter.2 }}"></input>
             {% else %}
             {{ parameter.1 }}: ⁣<div>{{ parameter.2 }}</div>
             {% endif %}
         </li>
         {% endfor %}
     </ul>
-    <div>
+    <div class="content-container" style="position: relative;">
         <div class="d-flex">
-            <div class="d-flex pe-5">Инвентарь</div>
-            <a class="d-flex" onclick="create_item()">+</a>
+            <div class="d-flex pe-5 text-bold">Инвентарь</div>
+            <div onclick="create_item()" style="position: absolute; top: 20px; right: 20px;">
+                <span class="material-symbols-outlined">
+                    elderly_woman
+                </span>
+            </div>
         </div>
-            <ul id="ul_inventory">
+            <ul class="mt-2" id="ul_inventory">
                 {% for item in inventory %}
-                <li>
-                    <input onchange="item_name_onchange({{item.0}})" value="{{item.1}}"></input>
-                    <textarea onchange="item_description_onchange({{item.0}})">{{item.2}}</textarea>
-                    <a onclick="item_delete_onclick({{item.0}})">-</a>
-                    <a onclick="create_item_modifier({{item.0}})">add modifier</a>
+                <li class="item">
+                    <input class="item-name border" onchange="item_name_onchange({{item.0}})" value="{{item.1}}"></input>
+                    <textarea class="item-description border" onchange="item_description_onchange({{item.0}})">{{item.2}}</textarea>
+                    <div class="item-delete" onclick="item_delete_onclick({{item.0}})">
+                        <span class="material-symbols-outlined">
+                            no_adult_content
+                        </span>
+                    </div>
+                    <div class="item-modifier-add" onclick="create_item_modifier({{item.0}})">
+                        <span class="material-symbols-outlined">
+                        add
+                        </span>
+                    </div>
                     <ul>
                         {% for modifier in item.3 %}
-                        <li>
-                            <input onchange="item_modifier_onchange({{item.0}}, {{modifier.0}})" value="{{modifier.1}}" />
-                            <a onclick="delete_item_modifier({{item.0}}, {{modifier.0}})">-</a>                        
+                        <li class="d-flex item-modifier">
+                            <input class="border" onchange="item_modifier_onchange({{item.0}}, {{modifier.0}})" value="{{modifier.1}}" />
+                            <div onclick="delete_item_modifier({{item.0}}, {{modifier.0}})">
+                                <span class="material-symbols-outlined">
+                                transgender
+                                </span>
+                            </div>                        
                         </li>
                         {% endfor %}
                     </ul>
@@ -78,11 +161,20 @@
         li = ul_inventory.appendChild(document.createElement("li"))
         li.appendChild(document.createElement("input")).setAttribute("onchange","item_name_onchange("+item_id+")")
         li.appendChild(document.createElement("textarea")).setAttribute("onchange","item_description_onchange("+item_id+")")
-        li.appendChild(document.createElement("a")).setAttribute("onclick","item_delete_onclick("+item_id+")")
-        li.appendChild(document.createElement("a")).setAttribute("onclick","create_item_modifier("+item_id+")")
-        li.appendChild(document.createElement("ul"))
-        ul_inventory.children[item_id].children[2].textContent = "-"
-        ul_inventory.children[item_id].children[3].textContent = "add modifier"
+        li.appendChild(document.createElement("div")).setAttribute("onclick","item_delete_onclick("+item_id+")")
+        li.appendChild(document.createElement("div")).setAttribute("onclick","create_item_modifier("+item_id+")")
+        li.appendChild(document.createElement("div")).setAttribute("onclick","create_item_modifier("+item_id+")")
+        li.appendChild(document.createElement("ul")).classList.add("d-flex", "item-modifier")
+
+        li.classList.add("item")
+        ul_inventory.children[item_id].children[0].classList.add("item-name","border")
+        ul_inventory.children[item_id].children[1].classList.add("item-description", "border")
+        ul_inventory.children[item_id].children[2].appendChild(document.createElement("span")).classList.add("material-symbols-outlined", )
+        ul_inventory.children[item_id].children[2].children[0].textContent = "no_adult_content"
+        ul_inventory.children[item_id].children[2].classList.add("item-delete")
+        ul_inventory.children[item_id].children[3].appendChild(document.createElement("span")).classList.add("material-symbols-outlined")
+        ul_inventory.children[item_id].children[3].children[0].textContent = "add"
+        ul_inventory.children[item_id].children[3].classList.add("item-modifier-add")
     }
     
     function item_name_onchange(item_id) {
@@ -133,9 +225,12 @@
         li = ul_inventory.children[item_id].children[4].appendChild(document.createElement("li"))
         li.appendChild(document.createElement("input")).
            setAttribute("onchange","item_modifier_onchange("+item_id+","+(ul_inventory.children[item_id].children[4].children.length-1)+")")
-        li.appendChild(document.createElement("a")).
+        li.appendChild(document.createElement("div")).
            setAttribute("onclick","delete_item_modifier("+item_id+","+(ul_inventory.children[item_id].children[4].children.length-1)+")")
-        li.children[1].textContent = '-'
+        li.classList.add("d-flex", "item-modifier")
+        li.children[0].classList.add("border")
+        li.children[1].appendChild(document.createElement("span")).classList.add("material-symbols-outlined")
+        li.children[1].children[0].textContent = "transgender"
     }
 
     function item_modifier_onchange(item_id, modifier_id) {

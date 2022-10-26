@@ -73,3 +73,11 @@
 }.mt-1 {
     margin-top: 0.25rem!important;
 }
+.content-container {
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    background-color: #fbfbfb;
+    margin-bottom: 15px;
+    padding: 20px;
+}
