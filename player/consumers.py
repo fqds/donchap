@@ -106,20 +106,33 @@ def delete_item(item_id, lobby_name, user_id):
     lobby = Lobby.objects.get(lobby_name=lobby_name)
     player = lobby.players.get(player_id=user_id)
     parameter_updates = []
-    for i in player.items.all():
-        for modifier in i.modifiers.all():
+    item = player.items.get(item_id=item_id)
+    for modifier in item.modifiers.all():
 
-            try:
-                if modifier.modifier_value[0] == "+":
-                    modifier_value_before = modifier.modifier_value.split()
-                    parameter_id = lobby.lobby_parameters.get(parameter_stat = modifier_value_before[1]).parameter_id
-                    parameter = player.parameters.get(parameter_id = parameter_id)
-                    parameter.parameter_modifier = parameter.parameter_modifier - int(modifier_value_before[2])
-                    parameter.save()
-                    parameter_updates.append([parameter_id, parameter.parameter_value])
-            except: pass
-            modifier.delete()
-    player.items.get(item_id=item_id).delete()
+        try:
+            if modifier.modifier_value[0] == "+":
+                modifier_value_before = modifier.modifier_value.split()
+                parameter_id = lobby.lobby_parameters.get(parameter_stat = modifier_value_before[1]).parameter_id
+                parameter = player.parameters.get(parameter_id = parameter_id)
+                parameter.parameter_modifier = parameter.parameter_modifier - int(modifier_value_before[2])
+                parameter.save()
+                parameter_updates.append([parameter_id, parameter.parameter_value])
+        except: pass
+        modifier.delete()    
+    # item =  player.items.get(item_id=item_id)
+    # for modifier in item.modifiers.all():
+    #     try:
+    #         if modifier.modifier_value[0] == "+":
+    #             modifier_value_before = modifier.modifier_value.split()
+    #             parameter_id = lobby.lobby_parameters.get(parameter_stat = modifier_value_before[1]).parameter_id
+    #             parameter = player.parameters.get(parameter_id = parameter_id)
+    #             parameter.parameter_modifier = parameter.parameter_modifier - int(modifier_value_before[2])
+    #             parameter.save()
+    #             parameter_updates.append([parameter_id, parameter.parameter_value])
+    #     except: pass
+    #     modifier.delete()
+    # item.delete()
+    item.delete()
     for i in player.items.filter(item_id__gt=item_id):
         i.item_id = i.item_id - 1
         i.save()
@@ -143,6 +156,8 @@ def update_item_modifier(lobby_name, user_id, item_id, modifier_id, modifier_val
     player = lobby.players.get(player_id=user_id)
     item = player.items.get(item_id=item_id)
     modifier = item.modifiers.get(modifier_id=modifier_id)
+    parameter_update_after = False
+    parameter_update_before = False
     try:
         if modifier.modifier_value[0] == "+":
             modifier_value_before = modifier.modifier_value.split()
@@ -151,7 +166,7 @@ def update_item_modifier(lobby_name, user_id, item_id, modifier_id, modifier_val
             parameter.parameter_modifier = parameter.parameter_modifier - int(modifier_value_before[2])
             parameter.save()
             parameter_update_before = [parameter_id, parameter.parameter_value]
-    except: parameter_update_before = False
+    except: pass
     try:
         if modifier_value[0] == "+":
             modifier_value_after = modifier_value.split() 
@@ -160,12 +175,12 @@ def update_item_modifier(lobby_name, user_id, item_id, modifier_id, modifier_val
             parameter.parameter_modifier = parameter.parameter_modifier + int(modifier_value_after[2])
             parameter.save()
             parameter_update_after = [parameter_id, parameter.parameter_value]
-    except: parameter_update_after = False
+    except: pass
     modifier.modifier_value = modifier_value
     modifier.save()
     update = UpdateItemModifier(lobby_identifier=lobby, player_id=user_id, item_id=item_id, modifier_id=modifier_id, modifier_value=modifier_value)
     update.save()
-    return [parameter_update_before, parameter_update_after, parameter.parameter_modifier]
+    return [parameter_update_before, parameter_update_after]
 
 @database_sync_to_async
 def delete_item_modifier(lobby_name, user_id, item_id, modifier_id):
@@ -173,6 +188,7 @@ def delete_item_modifier(lobby_name, user_id, item_id, modifier_id):
     player = lobby.players.get(player_id=user_id)
     item = player.items.get(item_id=item_id)
     modifier = item.modifiers.get(modifier_id=modifier_id)
+    parameter_update_before = False
     try:
         if modifier.modifier_value[0] == "+":
             modifier_value_before = modifier.modifier_value.split()
@@ -181,7 +197,7 @@ def delete_item_modifier(lobby_name, user_id, item_id, modifier_id):
             parameter.parameter_modifier = parameter.parameter_modifier - int(modifier_value_before[2])
             parameter.save()
             parameter_update_before = [parameter_id, parameter.parameter_value]
-    except: parameter_update_before = False
+    except: pass
     modifier.delete()
     for i in item.modifiers.filter(modifier_id__gt=modifier_id):
         i.modifier_id -= 1

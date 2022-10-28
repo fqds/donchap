@@ -163,8 +163,7 @@
         li.appendChild(document.createElement("textarea")).setAttribute("onchange","item_description_onchange("+item_id+")")
         li.appendChild(document.createElement("div")).setAttribute("onclick","item_delete_onclick("+item_id+")")
         li.appendChild(document.createElement("div")).setAttribute("onclick","create_item_modifier("+item_id+")")
-        li.appendChild(document.createElement("div")).setAttribute("onclick","create_item_modifier("+item_id+")")
-        li.appendChild(document.createElement("ul")).classList.add("d-flex", "item-modifier")
+        li.appendChild(document.createElement("ul"))
 
         li.classList.add("item")
         ul_inventory.children[item_id].children[0].classList.add("item-name","border")
