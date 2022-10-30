@@ -10,7 +10,8 @@
         padding-left: 0;
     }
     .container-main {
-        margin: 30px;
+        display: flex;
+        justify-content: center;
     }
     .content-container {
         min-width: 350px;
@@ -79,6 +80,7 @@
 
 
 <div class="container-main mt-1">
+    <div>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <ul class="content-container line-height-1.5 text-bold" id="ul_parameters">
         {% for parameter in content %}
@@ -96,7 +98,7 @@
             <div class="d-flex pe-5 text-bold">Инвентарь</div>
             <div onclick="create_item()" style="position: absolute; top: 20px; right: 20px;">
                 <span class="material-symbols-outlined">
-                    elderly_woman
+                    add_box
                 </span>
             </div>
         </div>
@@ -107,7 +109,7 @@
                     <textarea class="item-description border" onchange="item_description_onchange({{item.0}})">{{item.2}}</textarea>
                     <div class="item-delete" onclick="item_delete_onclick({{item.0}})">
                         <span class="material-symbols-outlined">
-                            no_adult_content
+                            remove
                         </span>
                     </div>
                     <div class="item-modifier-add" onclick="create_item_modifier({{item.0}})">
@@ -121,7 +123,7 @@
                             <input class="border" onchange="item_modifier_onchange({{item.0}}, {{modifier.0}})" value="{{modifier.1}}" />
                             <div onclick="delete_item_modifier({{item.0}}, {{modifier.0}})">
                                 <span class="material-symbols-outlined">
-                                transgender
+                                    remove
                                 </span>
                             </div>                        
                         </li>
@@ -131,6 +133,7 @@
                 {% endfor %}
             </ul>
         </div>
+    </div>
     </div>
 </div>
 
@@ -169,7 +172,7 @@
         ul_inventory.children[item_id].children[0].classList.add("item-name","border")
         ul_inventory.children[item_id].children[1].classList.add("item-description", "border")
         ul_inventory.children[item_id].children[2].appendChild(document.createElement("span")).classList.add("material-symbols-outlined", )
-        ul_inventory.children[item_id].children[2].children[0].textContent = "no_adult_content"
+        ul_inventory.children[item_id].children[2].children[0].textContent = "remove"
         ul_inventory.children[item_id].children[2].classList.add("item-delete")
         ul_inventory.children[item_id].children[3].appendChild(document.createElement("span")).classList.add("material-symbols-outlined")
         ul_inventory.children[item_id].children[3].children[0].textContent = "add"
@@ -229,7 +232,7 @@
         li.classList.add("d-flex", "item-modifier")
         li.children[0].classList.add("border")
         li.children[1].appendChild(document.createElement("span")).classList.add("material-symbols-outlined")
-        li.children[1].children[0].textContent = "transgender"
+        li.children[1].children[0].textContent = "remove"
     }
 
     function item_modifier_onchange(item_id, modifier_id) {
