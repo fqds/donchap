@@ -30,13 +30,10 @@ def lobby_view(request, *args, **kwargs):
 
     for i in range(len(lobby.lobby_parameters.all())):
         parameter = lobby.lobby_parameters.all()[i]
-        if parameter.parameter_formula: l=False
-        else: l=True
-
-        content.append([i, 
+        if not parameter.parameter_formula: 
+            content.append([i, 
                     parameter.parameter_name, 
-                    player.parameters.all()[i].parameter_value,
-                    l])
+                    player.parameters.all()[i].parameter_value])
 
     inventory = []
     for item in player.items.all():

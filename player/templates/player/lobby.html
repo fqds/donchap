@@ -85,11 +85,7 @@
     <ul class="content-container line-height-1.5 text-bold" id="ul_parameters">
         {% for parameter in content %}
         <li class="d-flex stat">
-            {% if parameter.3 %}
             {{ parameter.1 }}: ⁣<input class="text-bold" onchange="parameter_onchange('{{ parameter.0 }}')" value="{{ parameter.2 }}"></input>
-            {% else %}
-            {{ parameter.1 }}: ⁣<div>{{ parameter.2 }}</div>
-            {% endif %}
         </li>
         {% endfor %}
     </ul>
