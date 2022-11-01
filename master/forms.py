@@ -7,17 +7,18 @@ class CreateLobbyForm(forms.Form):
 '''Имя
 Раса
 Класс
-Уровень level
+Уровень LEVEL
 Сила S
 Выносливость E
 Ловкость A
 Восприятие P
 Интеллект I
 Харизма C
-Здоровье HP S*4+E*10
+ПотеряноеЗдоровье LOSTHP
+Здоровье HP (S*4+E*10)*LEVEL-LOSTHP
 Мана MP I*10+P*25+E*15
 Резист RES 0
 Уворот DODGE A*5+P*5
-УронБлижний DMG S*3+A*1
-УронДальний RDMG A*1+I*2+P*2
-УронМагический MDMG I*7+P*3'''))
+УронБлижний DMG (S*3+A)*LEVEL
+УронДальний RDMG (A+I*2+P*2)*LEVEL
+УронМагический MDMG (I*7+P*3)*LEVEL'''))

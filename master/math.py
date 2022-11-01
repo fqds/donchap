@@ -9,14 +9,17 @@ def recount(inpt):
     inpt = temp.split()
     
     temp = []
-    for i in range(len(inpt)):
-        if inpt[i] == '(':
+    i=0
+    while True:
+        try: inpt[i]
+        except: break
+        if inpt[i] == '(': 
             temp.append(i)
         elif inpt[i] == ')':
             inpt[temp[-1]] = num_count(inpt[temp[-1]+1:i])
             for j in range(temp[-1],i):
                 inpt.pop(temp[-1]+1)
-        
+        i+=1
     return num_count(inpt)
 
 def num_count(inpt):
@@ -51,4 +54,4 @@ def isnum(val):
         return True
     except Exception:
         return False
-    
+
