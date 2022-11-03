@@ -76,7 +76,6 @@ def lobby_master_view(request, *args, **kwargs):
             content[-1][1].append([j.item_name, j.item_description, []])
             for k in j.modifiers.all():
                 content[-1][1][-1][2].append(k.modifier_value)
-    print(content)
     lobby.update_parameters.all().delete()
     lobby.update_create_items.all().delete()
     lobby.update_item_description.all().delete()
