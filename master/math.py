@@ -26,23 +26,23 @@ def num_count(inpt):
     ttt = [inpt.count('/'), inpt.count('*'), inpt.count('^')]
     for i in range(ttt[0]):
         tt = inpt.index('/')
-        inpt[tt-1] = int(inpt[tt-1]) / int(inpt[tt+1])
+        inpt[tt-1] = float(inpt[tt-1]) / float(inpt[tt+1])
         inpt.pop(tt)
         inpt.pop(tt)
     for i in range(ttt[1]): 
         tt = inpt.index('*')
-        inpt[tt-1] = int(inpt[tt-1]) * int(inpt[tt+1])
+        inpt[tt-1] = float(inpt[tt-1]) * float(inpt[tt+1])
         inpt.pop(tt)
         inpt.pop(tt)
     for i in range(ttt[2]):
         tt = inpt.index('^')
-        inpt[tt-1] = int(inpt[tt-1]) ** int(inpt[tt+1])
+        inpt[tt-1] = float(inpt[tt-1]) ** float(inpt[tt+1])
         inpt.pop(tt)
         inpt.pop(tt)
         
     while len(inpt) != 1:
-        if inpt[1] == '+': inpt[0] = int(inpt[0]) + int(inpt[2])
-        elif inpt[1] == '-': inpt[0] = int(inpt[0]) - int(inpt[2])
+        if inpt[1] == '+': inpt[0] = float(inpt[0]) + float(inpt[2])
+        elif inpt[1] == '-': inpt[0] = float(inpt[0]) - float(inpt[2])
         inpt.pop(1)
         inpt.pop(1)
 
@@ -53,5 +53,6 @@ def isnum(val):
         float(val)
         return True
     except Exception:
+        if val == ".": return True
         return False
 

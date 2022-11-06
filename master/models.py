@@ -10,9 +10,9 @@ class Lobby(models.Model):
 
 class LobbyParameter(models.Model):
     lobby_identifier = models.ForeignKey(Lobby, related_name='lobby_parameters', on_delete=models.CASCADE)
-    parameter_name = models.CharField(max_length=20, null=True)
-    parameter_stat = models.CharField(max_length=10, null=True)
-    parameter_formula = models.CharField(max_length=30, null=True)
+    parameter_name = models.CharField(max_length=30, null=True)
+    parameter_stat = models.CharField(max_length=20, null=True)
+    parameter_formula = models.CharField(max_length=70, null=True)
     parameter_id = models.IntegerField()
 
 

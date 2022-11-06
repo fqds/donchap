@@ -81,7 +81,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'donchap.wsgi.application'
 
-ASGI_APPLICATION = 'donchap.asgi.application'
+ASGI_APPLICATION = 'donchap.routing.application'
 
 
 # Database
