@@ -2,84 +2,9 @@
 
 {% block content %}
 
-<style type="text/css">
-    li {
-        list-style-type: none;
-    }
-    ul {
-        padding-left: 0;
-    }
-    .container-main {
-        display: flex;
-        justify-content: center;
-    }
-    .content-container {
-        min-width: 350px;
-        max-width: 500px;
-    }
-.stat {
-    position: relative;
-    padding-right: 8em; /* чтобы элемент не был поверх содержимого родителя */
-  }
-  .stat:not(:last-child) {
-    margin-bottom: 5px;
-}
-  .stat input {
-    position: absolute; 
-    top: 0; 
-    right: 0;
-  }
-  .item-delete {
-    position: absolute; 
-    top: 13px; 
-    right: 14px;
-  }
-  .item-modifier-add {
-    position: absolute; 
-    top: 58px; 
-    right: 14px;
-  }
-  .item {
-    position: relative;
-      border: 1px solid black;
-      padding: 5px 5px 0 ;
-      background-color: #DEE3E9;
-      border-radius: 10px;
-  }
-  .item:not(:last-child) {
-      margin-bottom: 5px;
-  }
-  .item-name {
-      font-size: 22px;
-      width: 100%;
-      margin-bottom: 5px;
-  }
-  .item-description {
-      font-size: 18px;
-      width: 100%;
-      margin-bottom: 0px;
-  }
-  .item-modifier {
-      font-size: 14px;
-      margin-bottom: 5px;
-      padding-right: 5px;
-  }
-  .item-modifier input {
-    width: 100%;
-    margin-right: 5px;
-  }
-  .border {
-    border-radius: 5px;
-    border-width: 1px;
-  }
-  .text-bold {
-      font-weight: bold;
-      font-size: 16px;
-  }
-</style>
 
 
-<div class="container-main mt-1">
+<div class="container-main">
     <div>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <ul class="content-container line-height-1.5 text-bold" id="ul_parameters">
@@ -98,7 +23,7 @@
                 </span>
             </div>
         </div>
-            <ul class="mt-2" id="ul_inventory">
+            <ul id="ul_inventory" style="margin: 0">
                 {% for item in inventory %}
                 <li class="item">
                     <input class="item-name border" onchange="item_name_onchange({{item.0}})" value="{{item.1}}"></input>
@@ -132,6 +57,87 @@
     </div>
     </div>
 </div>
+
+
+<style type="text/css">
+li {
+    list-style-type: none;
+}
+ul {
+    padding-left: 0;
+}
+.container-main {
+    display: flex;
+    justify-content: center;
+}
+.content-container {
+    margin-top: 10px;
+    width: 100%;
+    
+}
+.stat {
+    position: relative;
+    padding-right: 8em; /* чтобы элемент не был поверх содержимого родителя */
+}
+.stat:not(:last-child) {
+    margin-bottom: 5px;
+}
+.stat input {
+    position: absolute; 
+    top: 0; 
+    right: 0;
+    border-width: 2px;
+}
+.item-delete {
+    position: absolute; 
+    top: 19px; 
+    right: 18px;
+}
+.item-modifier-add {
+    position: absolute; 
+    top: 106px; 
+    right: 18px;
+}
+.item {
+    position: relative;
+    border: 2px solid black;
+    padding: 10px 10px 0 ;
+    background-color: #DEE3E9;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+.item-name {
+    font-size: 44px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+.item-description {
+    font-size: 36px;
+    width: 100%;
+    margin-bottom: 5px;
+}
+.item-modifier {
+    font-size: 28px;
+    margin-bottom: 10px;
+    padding-right: 5px;
+}
+.item-modifier input {
+    width: 100%;
+    margin-right: 5px;
+}
+.border {
+    border-radius: 5px;
+    border-width: 2px;
+}
+.text-bold {
+    font-weight: bold;
+    font-size: 32px;
+}
+.material-symbols-outlined {
+    font-size: 48px;
+}
+</style>
+
 
 <script type="text/javascript">
 	var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
