@@ -4,6 +4,7 @@ from master.forms import CreateLobbyForm
 from master.models import (
     Lobby,
     LobbyParameter,
+    LobbyParameterBar
 )
 
 def create_lobby_view(request, *args, **kwargs):
@@ -24,21 +25,26 @@ def create_lobby_view(request, *args, **kwargs):
             lobby.save()
             for parameter in raw_content.split('\r\n'):
                 i = parameter.split()
-                if len(i) == 3: 
-                    stat = i[1]
-                    formula = i[2]
-                elif len(i) == 2:
-                    stat = i[1]
-                    formula = ''
-                else: 
-                    stat = ''
-                    formula = ''
-                lobby_parameter = LobbyParameter(lobby_identifier=lobby,
-                                                 parameter_name=i[0],
-                                                 parameter_stat=stat,
-                                                 parameter_formula=formula,
-                                                 parameter_id=raw_content.split('\r\n').index(parameter),)
-                lobby_parameter.save()
+                if len(i) == 5: 
+                    lobby_bar = LobbyParameterBar(lobby_identifier=lobby,
+                                                  name=i[0],
+                                                  max_value_name=i[1],
+                                                  max_value_formuls=i[2],
+                                                  negative_value_formula=i[3],
+                                                  color=i[4])
+                    lobby_bar.save()
+                else:
+                    if len(i) == 3: 
+                        stat = i[1]
+                        formula = i[2]
+                    elif len(i) == 2:
+                        stat = i[1]
+                    lobby_parameter = LobbyParameter(lobby_identifier=lobby,
+                                                    parameter_name=i[0],
+                                                    parameter_stat=stat,
+                                                    parameter_formula=formula,
+                                                    parameter_id=raw_content.split('\r\n').index(parameter),)
+                    lobby_parameter.save()
             return redirect('lobby_master:view', lobby_name=lobby_name)
     else:
         form = CreateLobbyForm()

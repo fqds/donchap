@@ -26,7 +26,9 @@ def lobby_view(request, *args, **kwargs):
         for i in range(len(lobby.lobby_parameters.all())):
             parameter_value = PlayerParameter(player_identifier=player, parameter_id=i)
             parameter_value.save()
-
+        for i in range(len(lobby.lobby_parameter_bars.all())):
+            player_bar = PlayerParameter(player_identifier=player, bar_id=i)
+            player_bar.save()
 
     for i in range(len(lobby.lobby_parameters.all())):
         parameter = lobby.lobby_parameters.all()[i]

@@ -11,8 +11,8 @@ class Lobby(models.Model):
 class LobbyParameter(models.Model):
     lobby_identifier = models.ForeignKey(Lobby, related_name='lobby_parameters', on_delete=models.CASCADE)
     parameter_name = models.CharField(max_length=30)
-    parameter_stat = models.CharField(max_length=20, null=True)
-    parameter_formula = models.CharField(max_length=70, null=True)
+    parameter_stat = models.CharField(max_length=20, default="")
+    parameter_formula = models.CharField(max_length=70, default="")
     parameter_id = models.IntegerField()
 
 
@@ -91,7 +91,7 @@ class UpdateDeleteItemModifier(models.Model):
 
 
 class LobbyParameterBar(models.Model):
-    lobby_identifier = models.ForeignKey(Lobby, related_name='lobby_parameters_bars', on_delete=models.CASCADE)
+    lobby_identifier = models.ForeignKey(Lobby, related_name='lobby_parameter_bars', on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
     max_value_name = models.CharField(max_length=30)
     max_value_formula = models.CharField(max_length=70)
@@ -110,7 +110,7 @@ class PlayerParameterBar(models.Model):
 
 class UpdateParameterBar(models.Model):
     lobby_identifier = models.ForeignKey(Lobby, related_name='update_bars', on_delete=models.CASCADE)
-    max_value = models.IntegerField()
-    negative_value = models.IntegerField()
+    max_value = models.IntegerField(default=0)
+    negative_value = models.IntegerField(default=0)
     bar_id = models.IntegerField()
     player_id = models.IntegerField()
