@@ -72,12 +72,15 @@
                     <div class="item-description">{{item.1}}⁣</div>
                     <ul>
                         {% for modifier in item.2 %}
-                        <li class="item-modifier">{{ modifier }}</li>
+                        <li class="item-modifier">{{ modifier }}⁣</li>
                         {% endfor %}
                     </ul>
                 </li>
                 {% endfor %}
             </ul>
+            <div>
+                {{player.2}}
+            </div>
         </li>
         {% endfor %}
     </ul>

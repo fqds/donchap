@@ -29,7 +29,7 @@ def create_lobby_view(request, *args, **kwargs):
                     lobby_bar = LobbyParameterBar(lobby_identifier=lobby,
                                                   name=i[0],
                                                   max_value_name=i[1],
-                                                  max_value_formuls=i[2],
+                                                  max_value_formula=i[2],
                                                   negative_value_formula=i[3],
                                                   color=i[4])
                     lobby_bar.save()
@@ -39,6 +39,10 @@ def create_lobby_view(request, *args, **kwargs):
                         formula = i[2]
                     elif len(i) == 2:
                         stat = i[1]
+                        formula = ''
+                    else: 
+                        stat = ''
+                        formula = ''
                     lobby_parameter = LobbyParameter(lobby_identifier=lobby,
                                                     parameter_name=i[0],
                                                     parameter_stat=stat,
@@ -74,7 +78,7 @@ def lobby_master_view(request, *args, **kwargs):
 
     content = []
     for i in lobby.players.all():
-        content.append([[],[]])
+        content.append([[],[],[]])
         for j in i.parameters.all():
             try: content[-1][0].append(int(j.parameter_value) + j.parameter_modifier)
             except: content[-1][0].append(j.parameter_value)
@@ -82,6 +86,8 @@ def lobby_master_view(request, *args, **kwargs):
             content[-1][1].append([j.item_name, j.item_description, []])
             for k in j.modifiers.all():
                 content[-1][1][-1][2].append(k.modifier_value)
+        for j in i.bars.all():
+            content[-1][2].append([lobby.lobby_parameter_bars.all()[j.bar_id].name, j.max_value, j.negative_value])
     lobby.update_parameters.all().delete()
     lobby.update_create_items.all().delete()
     lobby.update_item_description.all().delete()
