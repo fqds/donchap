@@ -67,11 +67,14 @@ def lobby_master_view(request, *args, **kwargs):
     lobby = Lobby.objects.get(lobby_name = lobby_name)
 
 
-    parameters = []
     if user.pk != lobby.game_master:
         return redirect('lobby:view', lobby_name=lobby_name)
+
+    parameters = []
+    for i in lobby.lobby_parameter_bars.all():
+        parameters.append(i.name)
     for i in lobby.lobby_parameters.all():
-        parameters.append([i.parameter_name])
+        parameters.append(i.parameter_name)
 
     players = []
     for i in lobby.players.all(): players.append(i.player_id)
@@ -87,7 +90,8 @@ def lobby_master_view(request, *args, **kwargs):
             for k in j.modifiers.all():
                 content[-1][1][-1][2].append(k.modifier_value)
         for j in i.bars.all():
-            content[-1][2].append([lobby.lobby_parameter_bars.all()[j.bar_id].name, j.max_value, j.negative_value])
+            content[-1][2].append([j.max_value, j.negative_value, lobby.lobby_parameter_bars.all()[j.bar_id].color])
+
     lobby.update_parameters.all().delete()
     lobby.update_create_items.all().delete()
     lobby.update_item_description.all().delete()

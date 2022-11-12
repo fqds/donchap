@@ -45,6 +45,26 @@
     .item:not(:last-child) {
         margin-bottom: 20px;
     }
+    .container-bar {
+        justify-content: center;
+        align-items: center;
+        display: flex;
+    }
+    .bar {
+        border: 1px solid black;
+        border-radius: 10px;
+        position: absolute;
+        height: 22px;
+        width: 240px;
+    }
+    .bar-text {
+        position: absolute;
+        font-size: 10px;
+        border: 1px solid black;
+        border-radius: 6px;
+        padding: 0 8px 0 8px;
+        background-color: white;
+    }
 </style>
 
 <div class="container-main">
@@ -53,14 +73,25 @@
             <ul  class="content-container parameter-text">
                 {% for parameter in parameters %}
                 <li>
-                    {{ parameter.0 }}
+                    {{ parameter }}
                 </li>
                 {% endfor %}
             </ul>
         </li>
         {% for player in content %}
-        <li style="max-width: 400px;">
+        <li style="width: 300px;">
             <ul  class="content-container parameter-text">
+                {% for parameter in player.2 %}
+                <li>
+                    <div class="container-bar" style="">⁣
+                        <div class="bar" style="background-color: {{ parameter.2 }};">
+                        </div>
+                        <div class="bar-text">
+                            {{parameter.0}} / {{parameter.1}}
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
                 {% for parameter in player.0 %}
                 <li>{{parameter}}⁣</li>
                 {% endfor %}
@@ -78,9 +109,6 @@
                 </li>
                 {% endfor %}
             </ul>
-            <div>
-                {{player.2}}
-            </div>
         </li>
         {% endfor %}
     </ul>
