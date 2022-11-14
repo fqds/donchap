@@ -97,6 +97,7 @@ class LobbyParameterBar(models.Model):
     max_value_formula = models.CharField(max_length=70)
     negative_value_formula = models.CharField(max_length=70)
     color = models.CharField(max_length=15)
+    bar_id = models.IntegerField()
 
 
 class PlayerParameterBar(models.Model):

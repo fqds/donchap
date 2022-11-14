@@ -31,7 +31,8 @@ def create_lobby_view(request, *args, **kwargs):
                                                   max_value_name=i[1],
                                                   max_value_formula=i[2],
                                                   negative_value_formula=i[3],
-                                                  color=i[4])
+                                                  color=i[4],
+                                                  bar_id=len(lobby.lobby_parameter_bars.all()))
                     lobby_bar.save()
                 else:
                     if len(i) == 3: 
@@ -44,10 +45,10 @@ def create_lobby_view(request, *args, **kwargs):
                         stat = ''
                         formula = ''
                     lobby_parameter = LobbyParameter(lobby_identifier=lobby,
-                                                    parameter_name=i[0],
-                                                    parameter_stat=stat,
-                                                    parameter_formula=formula,
-                                                    parameter_id=raw_content.split('\r\n').index(parameter),)
+                                                     parameter_name=i[0],
+                                                     parameter_stat=stat,
+                                                     parameter_formula=formula,
+                                                     parameter_id=len(lobby.lobby_parameters.all()),)
                     lobby_parameter.save()
             return redirect('lobby_master:view', lobby_name=lobby_name)
     else:

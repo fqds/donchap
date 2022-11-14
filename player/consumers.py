@@ -24,7 +24,8 @@ class PlayerConsumer(AsyncJsonWebsocketConsumer):
 
         try:
             if command == "parameter_update":
-                await parameter_update(int(content.get("parameter_id")), content.get("parameter_value"), content.get("lobby_name"), self.scope["user"].pk )
+                data = await parameter_update(int(content.get("parameter_id")), content.get("parameter_value"), content.get("lobby_name"), self.scope["user"].pk )
+                print(data)
             if command == "create_item":
                 await create_item(content.get("lobby_name"), self.scope["user"].pk)
             if command == "update_item_name":
@@ -57,6 +58,7 @@ def parameter_update(parameter_id, parameter_value, lobby_name, user_id):
     except: parameter.parameter_value = parameter_value
     update = UpdateParameter(lobby_identifier=lobby, parameter_value=parameter.parameter_value, player_id=user_id, parameter_id=parameter.parameter_id)
     update.save()
+    data = []
     if lobby.lobby_parameters.get(parameter_id = parameter_id).parameter_stat:
         for i in lobby.lobby_parameters.exclude(parameter_formula = ''):
             if i.parameter_formula.find(lobby.lobby_parameters.all()[parameter_id].parameter_stat) != -1:
@@ -72,6 +74,27 @@ def parameter_update(parameter_id, parameter_value, lobby_name, user_id):
                     update.save()
                 except:
                     pass
+        for i in lobby.lobby_parameter_bars.all():
+            data.append([i.max_value_formula, lobby.lobby_parameters.all()[parameter_id].parameter_stat])
+            if i.max_value_formula.find(lobby.lobby_parameters.all()[parameter_id].parameter_stat) != -1:
+                data.append('a')
+                try:
+                    bar = player.bars.get(bar_id=i.bar_id) 
+                    formula = i.max_value_formula
+                    data.append(formula)
+                    for j in lobby.lobby_parameters.exclude(parameter_stat = ''):
+                        if formula.count(j.parameter_stat) != 0:
+                            formula = formula.replace(j.parameter_stat, str(int(player.parameters.get(parameter_id=j.parameter_id).parameter_value) + int(player.parameters.get(parameter_id=j.parameter_id).parameter_modifier)))
+                    data.append(recount(formula) )
+                    bar.max_value = recount(formula) 
+                    bar.save()
+                    data.append(bar.max_value)
+                except:
+                    pass
+    print(Lobby.objects.get(lobby_name = lobby_name).players.get(player_id = user_id).bars.all()[0].max_value)
+    return data
+
+
 @database_sync_to_async
 def create_item(lobby_name, user_id):
     lobby = Lobby.objects.get(lobby_name=lobby_name)
