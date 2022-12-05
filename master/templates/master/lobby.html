@@ -120,7 +120,7 @@
     
 
 	var ws_path = ws_scheme + '://' + window.location.host + "/lobby_master_asgi/{{lobby_name}}/"; 
-	//var ws_path = ws_scheme + '://' + window.location.host + "/lobby_master_asgi/{{lobby_name}}:8001/"; 
+	//var ws_path = ws_scheme + '://' + window.location.host + ":8001/lobby_master_asgi/{{lobby_name}}/"; 
     var master_socket = new WebSocket(ws_path);
 
     const ul_control = document.getElementById('ul_master')
@@ -190,6 +190,9 @@
                 player_card.children[1].children[content[7][i][1]].children[2].removeChild(player_card.children[1].children[content[7][i][1]].children[2].children[content[7][i][2]])
             }
             setTimeout(update_data, 1000)
+        }
+        if (data.message) {
+            console.log(data.message)
         }
     }
 </script>

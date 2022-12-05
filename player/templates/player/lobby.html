@@ -139,7 +139,7 @@ ul {
 <script type="text/javascript">
 	var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
 	var ws_path = ws_scheme + '://' + window.location.host + "/lobby_asgi/{{lobby_name}}/"; 
-	//var ws_path = ws_scheme + '://' + window.location.host + "/lobby_asgi/{{lobby_name}}:8001/"; 
+	//var ws_path = ws_scheme + '://' + window.location.host + ":8001/lobby_asgi/{{lobby_name}}/"; 
     var player_socket = new WebSocket(ws_path);
 
     var ul_parameters = document.getElementById("ul_parameters")

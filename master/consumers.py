@@ -4,6 +4,15 @@ from master.models import Lobby
 
 
 class MasterConsumer(AsyncJsonWebsocketConsumer):
+
+    async def connect(self):
+        await self.accept()
+        await self.send_json(
+            {
+                "message": "connected",
+            },
+        )
+
     async def receive_json(self, content):
         command = content.get("command", None)
 

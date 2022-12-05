@@ -83,6 +83,11 @@ WSGI_APPLICATION = 'donchap.wsgi.application'
 
 ASGI_APPLICATION = 'donchap.routing.application'
 
+CHANNEL_LAYERS = {
+    'default':{
+        'BACKEND':'channels.layers.InMemoryChannelLayer'
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
